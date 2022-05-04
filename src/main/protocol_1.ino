@@ -1,0 +1,4 @@
+void protocol_1()
+{
+  
+}

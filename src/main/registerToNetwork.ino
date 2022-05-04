@@ -79,7 +79,7 @@ void registerToNetwork()
     // Register to network
     networkMessage = "";
     bool sendRegisterMessage = true;
-    Serial.println("Registering to network" + network.id);
+    Serial.println("Registering to network " + network.id);
 
     while(sendRegisterMessage == true)
     {
@@ -142,7 +142,7 @@ void registerToNetwork()
   if(networkConfirmation == true)
   {
     Serial.println("Network detected =======================");
-    Serial.println("Registered to Network " + network.id);
+    Serial.println("Device is registered to Network " + network.id);
     Serial.println("========================================");
 
     delay(1000);

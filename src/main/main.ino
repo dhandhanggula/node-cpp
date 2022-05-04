@@ -21,7 +21,7 @@
 
 #define txPower 17
 #define LNAgain 0                     // 0 - 6
-String nodeID = "62698410GC";         // 
+String nodeID = "62698410GD";         // 
 
 //====================================================================
 // Network Configuration =============================================
@@ -33,6 +33,7 @@ String nodeID = "62698410GC";         //
 #define signalBandwidth 125E3         // 7.8E3, 10.4E3, 15.6E3, 
                                       // 20.8E3, 31.25E3, 41.7E3, 
                                       // 62.5E3, 125E3, 250E3, 500E3
+#define codingRateDen 5               // 5 - 8 => default 5 (4/5)
 
 //====================================================================
 // Mesh Route ========================================================
@@ -42,6 +43,7 @@ struct networkProperties{
   String id;
   String networkMember[30];
   String memberNeighbour[30];
+  int maxMember = 30;
 };
 
 networkProperties network;
@@ -56,6 +58,9 @@ int registerStatus = 0;
 
 String messageReceived = "";
 String messageSent = "";
+
+
+
 
 void setup()
 {
@@ -115,6 +120,8 @@ void setup()
 void loop()
 {
   int packetSize = LoRa.parsePacket();
+  messageReceived = "";
+
   if (packetSize) {
 
     // read packet
@@ -123,11 +130,19 @@ void loop()
     }
 
     // print RSSI of packet
-    Serial.println(messageReceived);
-    Serial.print("' with RSSI ");
+    Serial.print(messageReceived);
+    Serial.print(" with RSSI ");
     Serial.println(LoRa.packetRssi());
 
   }
+
+  if (messageReceived != "")
+  {
+    protocol_0();
+    protocol_1();
+    protocol_2();
+  }
+
 }
 
 

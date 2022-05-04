@@ -1,3 +1,17 @@
+//====================================================================
+//====================================================================
+// Protocol 0 is a protocol for registering node to existing network
+// 00 - Find nearest network
+// 01 - Answer of "00"
+// 02 - Registering node into nearest network
+// 03 - Answer of "02"
+//
+// Status:
+// Build : OK
+// Tested : OK
+//====================================================================
+
+
 void protocol_0()
 {
   if (parsing(messageReceived, '|', 0) == "00")

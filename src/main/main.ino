@@ -16,6 +16,9 @@
 #include <LoRa.h>
 #include <EEPROM.h>
 
+#include <Wire.h>
+#include "RTClib.h"
+
 //====================================================================
 // LoRa Node Configuration ===========================================
 //====================================================================
@@ -45,9 +48,18 @@ struct networkProperties{
   String networkMember[30];
   String memberNeighbour[30];
   int maxMember = 30;
+  unsigned long routingID = 0;
 };
 
 networkProperties network;
+
+unsigned long networkTime;
+
+//====================================================================
+// R T C =============================================================
+//====================================================================
+
+RTC_DS1307 rtc;
 
 //====================================================================
 // Other(s) ==========================================================
@@ -60,10 +72,18 @@ int registerStatus = 0;
 String messageReceived = "";
 String messageSent = "";
 
+// Network search
+String networkCandidate = "";
+String endNetworkCandidate = "";
+bool getNetwork = false;
+bool isRegistered = false;
 
 
 void setup()
 {
+  // Start network time
+  initNetworkTime();
+    
   // Reading the credentials saved in EEPROM
   readNodeCredentials();
 
@@ -104,12 +124,6 @@ void setup()
   Serial.println("========================================");
   Serial.println(" ");
 
-  // Network search
-  String networkCandidate = "";
-  String endNetworkCandidate = "";
-  bool getNetwork = false;
-  bool isRegistered = false;
-
   networkSearch();
 
   if(getNetwork == true)
@@ -127,8 +141,9 @@ void setup()
       // copy routing table
       Serial.print("\nCopy Routing Table from ");
       Serial.println(endNetworkCandidate);
-      
-      copyRoutingTable(networkProperties.id, endNetworkCandidate);
+
+      copyRoutingTable(network.id, endNetworkCandidate);
+
     }
 
     if(isRegistered == false)
@@ -176,42 +191,7 @@ void loop()
 
   if (messageReceived != "")
   {
-    protocol_0();
-    protocol_1();
-    protocol_2();
+    //answer protocol here
   }
 
-}
-
-
-//====================================================================
-// Critical Function =================================================
-//====================================================================
-
-// to authenticate
-bool messageIsForMe(String message)
-{
-  if(parsing(message, '|', 2) == nodeID)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-bool isMyNeighbour()
-{
-  bool myNeighbour = false;
-
-  for(int i=0; i<network.maxMember; i++)
-  {
-    if(parsing(messageReceived, '|', 3) == network.id)
-    {
-      myNeighbour = true;
-    }
-  }
-
-  return myNeighbour;
 }

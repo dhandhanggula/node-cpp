@@ -18,10 +18,12 @@ void networkSearch()
   unsigned long previousMillis = 0;
   bool networkConfirmation = false;
 
+  // Receiver mode until get response or timeout
   while(networkConfirmation == false)
   {
     int packetSize = LoRa.parsePacket();
 
+    // if data received
     if (packetSize)
     {
       while (LoRa.available())
@@ -29,12 +31,13 @@ void networkSearch()
         networkMessage += (char)LoRa.read();
       }
 
-      // if code is 01, get network confirmation
-      // end register status
-      if(messageIsForMe(networkMessage) && parsing(networkMessage, '|', 0) == "01")
+      // if message is for this node and message code is right
+      if(messageIsForMe(networkMessage) == true && parsing(networkMessage, '|', 0) == "01")
       {
         networkConfirmation = true;
-        if(parsing(networkMessage, '|', 4).toInt() < networkProperties.maxMember)
+
+        // if network is not full
+        if((parsing(networkMessage, '|', 4).toInt()) < network.maxMember)
         {
           getNetwork = true;
 
@@ -43,7 +46,6 @@ void networkSearch()
         }
       }
 
-      // if code is not 01, wait again
       else
       {
         networkMessage = "";

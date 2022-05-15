@@ -1,4 +1,0 @@
-void protocol_2()
-{
-  
-}

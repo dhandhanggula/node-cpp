@@ -13,21 +13,36 @@
 
 void protocol_1()
 {
-  // if get 10, send it ID again
-  if (parsing(messageReceived, '|', 0) == "10" && parsing(messageReceived, '|', 2) == network.id)
+  switch (parsing(messageReceived, '|', 0).toInt()){
+    case 10:
+      protocol_1_case_10();
+    break;
+    
+    case 12:
+      protocol_1_case_12();
+    break;
+  }
+}
+
+void protocol_1_case_10()
+{
+  if (parsing(messageReceived, '|', 2) == network.id)
   {
     LoRa.beginPacket();
     messageSent = "11" + parser + nodeID + parser + network.id;
     LoRa.print(messageSent);
     LoRa.endPacket();
   }
+}
 
-  // if get 12, send routing table
-  if (parsing(messageReceived, '|', 0) == "12" && parsing(messageReceived, '|', 2) == network.id)
+void protocol_1_case_12()
+{
+  if (messageIsForMe() == true && isMyNeighbour() == true)
   {
-    int neighbourID = parsing(messageReceived, '|', 3).toInt();
+    int neighbourID = parsing(messageReceived, '|', 4).toInt();
     LoRa.beginPacket();
-    messageSent = "13" + parser + network.id + parser + network.networkMember[neighbourID] + parser + network.memberNeighbour[neighbourID];
+    String recipient = parsing(messageReceived, '|', 1);
+    messageSent = "13" + parser + nodeID + parser + recipient  + parser + network.networkMember[neighbourID] + parser + network.memberNeighbour[neighbourID];
     LoRa.print(messageSent);
     LoRa.endPacket();
   }

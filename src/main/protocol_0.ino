@@ -14,15 +14,29 @@
 
 void protocol_0()
 {
-  if (parsing(messageReceived, '|', 0) == "00")
+  if(parsing(messageReceived, '|', 0) == "00")
   {
-    LoRa.beginPacket();
-    messageSent = "01" + parser + network.id;
-    LoRa.print(messageSent);
-    LoRa.endPacket();
+    protocol_0_case_00();
   }
 
-  if (parsing(messageReceived, '|', 0) == "02" && parsing(messageReceived, '|', 2) == network.id)
+  if(parsing(messageReceived, '|', 0) == "02")
+  {
+    protocol_0_case_02();
+  }
+}
+
+void protocol_0_case_00()
+{
+  LoRa.beginPacket();
+  String recipient = parsing(messageReceived, '|', 1);
+  messageSent = "01" + parser + nodeID + parser + recipient + parser + network.id;
+  LoRa.print(messageSent);
+  LoRa.endPacket();
+}
+
+void protocol_0_case_02()
+{
+  if(messageIsForMe() == true && parsing(messageReceived, '|', 3) == network.id)
   {
     bool notRegisteredStatus = false;
     bool freeSpace = true;
@@ -55,27 +69,38 @@ void protocol_0()
       if(notRegisteredStatus = true && freeSpace == true)
       {
         network.networkMember[freeID] = parsing(messageReceived, '|', 1);
+        network.memberNeighbour[freeID] = nodeID + ";";
+
+        // change this node neighbour;
+        for(int i=0; i<network.maxMember; i++)
+        {
+          if(network.networkMember[i] == nodeID)
+          {
+            network.memberNeighbour[i] += (network.networkMember[freeID] + ";");
+          }
+        }
 
         // send confirmation
         LoRa.beginPacket();
-        messageSent = "03" + parser + parsing(messageReceived, '|', 1) + parser + network.id;
+        String recipient = parsing(messageReceived, '|', 1);
+        messageSent = "03" + parser + nodeID + parser + recipient + parser + network.id;
         LoRa.print(messageSent);
         LoRa.endPacket();
 
         // print new table
-        printRoutingTable();
+        routingTable();
       }
 
       if(notRegisteredStatus == false)
       {
         // send confirmation only without changing routing table
         LoRa.beginPacket();
-        messageSent = "03" + parser + parsing(messageReceived, '|', 1) + parser + network.id;
+        String recipient = parsing(messageReceived, '|', 1);
+        messageSent = "03" + parser + nodeID + parser + recipient + parser + network.id;
         LoRa.print(messageSent);
         LoRa.endPacket();
       }
 
     }
   }
-
 }

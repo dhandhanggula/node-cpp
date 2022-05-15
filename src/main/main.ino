@@ -14,6 +14,7 @@
 
 #include <SPI.h>
 #include <LoRa.h>
+#include <EEPROM.h>
 
 //====================================================================
 // LoRa Node Configuration ===========================================
@@ -21,7 +22,7 @@
 
 #define txPower 17
 #define LNAgain 0                     // 0 - 6
-String nodeID = "62698410GD";         // 
+String nodeID = "";         // 
 
 //====================================================================
 // Network Configuration =============================================
@@ -61,11 +62,14 @@ String messageSent = "";
 
 
 
-
 void setup()
 {
+  // Reading the credentials saved in EEPROM
+  readNodeCredentials();
+
   Serial.begin(9600);
 
+  // Activate LoRa
   Serial.println("========================================");
   Serial.print("Node with ID ");
   Serial.print(nodeID);
@@ -100,19 +104,53 @@ void setup()
   Serial.println("========================================");
   Serial.println(" ");
 
-  // Register to Network
-  registerToNetwork();
+  // Network search
+  String networkCandidate = "";
+  String endNetworkCandidate = "";
+  bool getNetwork = false;
+  bool isRegistered = false;
 
-  if(registerStatus == 1)
+  networkSearch();
+
+  if(getNetwork == true)
   {
-    // Ask for routing table
+    Serial.print("\nGet network candidate with ID ");
+    Serial.println(networkCandidate);
+    Serial.print("End node ID ");
+    Serial.println(endNetworkCandidate);
+
+    registerToNetwork();
+
+    if(isRegistered == true)
+    {
+
+      // copy routing table
+      Serial.print("\nCopy Routing Table from ");
+      Serial.println(endNetworkCandidate);
+      
+      copyRoutingTable(networkProperties.id, endNetworkCandidate);
+    }
+
+    if(isRegistered == false)
+    {
+      Serial.print("\nError : Can't join network ");
+      Serial.println(networkCandidate);
+      
+      delay(1000);
+
+      // create network
+      getNetwork = false;
+    }
   }
 
-  if(registerStatus == 2)
+  if(getNetwork == false)
   {
-    // Create routing table
-    network.networkMember[0] = nodeID;
-    printRoutingTable();
+    Serial.println("Network not detected");
+    Serial.println("Preparing to create new network\n");
+
+    delay(1000);
+    createNetwork();
+    routingTable();
   }
 
 }
@@ -150,19 +188,30 @@ void loop()
 // Critical Function =================================================
 //====================================================================
 
-void printRoutingTable()
+// to authenticate
+bool messageIsForMe(String message)
 {
-  Serial.println("\nRouting Table :");
-
-  for(int i=0; i<30; i++)
+  if(parsing(message, '|', 2) == nodeID)
   {
-    String table = String(i) + 
-                    "      " + 
-                    String(network.networkMember[i]) + 
-                    "     " + 
-                    String(network.memberNeighbour[i]);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 
-    Serial.println(table);
+bool isMyNeighbour()
+{
+  bool myNeighbour = false;
+
+  for(int i=0; i<network.maxMember; i++)
+  {
+    if(parsing(messageReceived, '|', 3) == network.id)
+    {
+      myNeighbour = true;
+    }
   }
 
+  return myNeighbour;
 }

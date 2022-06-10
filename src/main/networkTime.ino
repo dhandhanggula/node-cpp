@@ -9,11 +9,3 @@ void adjustNetworkTime(int year, int month, int day, int hour, int minute, int s
 {
   rtc.adjust(DateTime(year, month, day, hour, minute, second));
 }
-
-unsigned long int timeNow()
-{
-  DateTime now = rtc.now();
-  networkTime = now.unixtime();
-
-  return networkTime;
-}

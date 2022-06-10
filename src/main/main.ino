@@ -2,6 +2,7 @@
 //====================================================================
 // Dhandhanggula Node
 // Written in C++ Arduino
+// Mesh Routing Protocol : Dynamic Source Routing
 //
 // MIT License
 // For more information : https://github.com/dhandhanggula/node-cpp
@@ -21,14 +22,18 @@
 
 //====================================================================
 // LoRa Node Configuration ===========================================
+// Read : 
+// https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md ==
 //====================================================================
 
 #define txPower 17
 #define LNAgain 0                     // 0 - 6
-String nodeID = "";         // 
+String nodeID = "";                   // to save nodID from EEPROM 
 
 //====================================================================
 // Network Configuration =============================================
+// Read : 
+// https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md ==
 //====================================================================
 
 #define networkFreq 915E6             // 433E6, 868E6, 915E6
@@ -43,17 +48,12 @@ String nodeID = "";         //
 // Mesh Route ========================================================
 //====================================================================
 
-struct networkProperties{
-  String id;
-  String networkMember[30];
-  String memberNeighbour[30];
-  int maxMember = 30;
-  unsigned long routingID = 0;
+struct route{
+  String destination;
+  String relayNode[10];
 };
 
-networkProperties network;
-
-unsigned long networkTime;
+route routeToDestination;
 
 //====================================================================
 // R T C =============================================================
@@ -62,28 +62,23 @@ unsigned long networkTime;
 RTC_DS1307 rtc;
 
 //====================================================================
+// Message Config ====================================================
+// Message Structure
+// MsgCode | MsgID | Sender | Destination | Route Path | Payload
+//====================================================================
+int registerStatus = 0;
+
+String parser = "|";
+String messageReceived = "";
+String messageSent = "";
+String payload = "";                    // payload only
+
+//====================================================================
 // Other(s) ==========================================================
 //====================================================================
 
-String parser = "|";
-
-int registerStatus = 0;
-
-String messageReceived = "";
-String messageSent = "";
-
-// Network search
-String networkCandidate = "";
-String endNetworkCandidate = "";
-bool getNetwork = false;
-bool isRegistered = false;
-
-
 void setup()
 {
-  // Start network time
-  initNetworkTime();
-    
   // Reading the credentials saved in EEPROM
   readNodeCredentials();
 
@@ -123,51 +118,6 @@ void setup()
   Serial.println("Node is activated successfully =========");
   Serial.println("========================================");
   Serial.println(" ");
-
-  networkSearch();
-
-  if(getNetwork == true)
-  {
-    Serial.print("\nGet network candidate with ID ");
-    Serial.println(networkCandidate);
-    Serial.print("End node ID ");
-    Serial.println(endNetworkCandidate);
-
-    registerToNetwork();
-
-    if(isRegistered == true)
-    {
-
-      // copy routing table
-      Serial.print("\nCopy Routing Table from ");
-      Serial.println(endNetworkCandidate);
-
-      copyRoutingTable(network.id, endNetworkCandidate);
-
-    }
-
-    if(isRegistered == false)
-    {
-      Serial.print("\nError : Can't join network ");
-      Serial.println(networkCandidate);
-      
-      delay(1000);
-
-      // create network
-      getNetwork = false;
-    }
-  }
-
-  if(getNetwork == false)
-  {
-    Serial.println("Network not detected");
-    Serial.println("Preparing to create new network\n");
-
-    delay(1000);
-    createNetwork();
-    routingTable();
-  }
-
 }
 
 void loop()
@@ -175,20 +125,14 @@ void loop()
   int packetSize = LoRa.parsePacket();
   messageReceived = "";
 
+  // Read received packet
   if (packetSize) {
-
-    // read packet
     while (LoRa.available()) {
       messageReceived += (char)LoRa.read();
     }
-
-    // print RSSI of packet
-    Serial.print(messageReceived);
-    Serial.print(" with RSSI ");
-    Serial.println(LoRa.packetRssi());
-
   }
 
+  // Answer if needed
   if (messageReceived != "")
   {
     //answer protocol here

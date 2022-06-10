@@ -1,59 +1,52 @@
-// ping to specific target id
-
-bool ping(String target_id)
+void ping(route destinationRoute)
 {
+  String destination = destinationRoute.destination;
   Serial.print("Ping to ");
-  Serial.println(target_id);
+  Serial.println(destination);
 
-  // send ping to target
+  // Send ping msg
   LoRa.beginPacket();
-  String pingMessage = "14" + parser + nodeID + parser + target_id + parser + network.id;
-  LoRa.print(pingMessage);
+  String pingMsg[] = {"00", "zz", nodeID, destination, "routePath", "99"};
+  LoRa.print(createMsg(pingMsg));
   LoRa.endPacket();
 
-  // waiting for answer
-  String networkMessage = "";
-  unsigned long previousMillis = 0;
-  bool confirmation = false;
-  bool connected = false;
+  // Wait for the answer
+  long int timeout = 6000;        // set timeout to 6 second
+  unsigned long prevMillis = 0;
+  bool waitAnswer = true;
+  String receivedMsg = "";
 
   // ======================Start While==========================
   // Receiver mode until get response or timeout
-  while(confirmation == false)
+  while(waitAnswer == true)
   {
+    // Get packet
     int packetSize = LoRa.parsePacket();
-
     if (packetSize)
     {
       while (LoRa.available())
       {
-        networkMessage += (char)LoRa.read();
+        receivedMsg += (char)LoRa.read();
       }
+    }
 
-      // if message is for this node and message code is right
-      if(messageIsForMe(networkMessage) == true && parsing(networkMessage, '|', 0) == "15")
-      {
-        confirmation = true;
-        connected = true;
-      }
-
-      else
-      {
-        networkMessage = "";
-        confirmation = false;
-      }
-
-    }      
+    // authentication
+    if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destination) == true && isCodeRight(receivedMsg, "00") == true)
+    {
+      waitAnswer = false;
+      Serial.println("Connected to destination");
+    }
+        
     // End connection if timeout
     unsigned long currentMillis = millis();
 
-    if (currentMillis - previousMillis >= 6000) {
-      previousMillis = currentMillis;
-      confirmation = true;
-      connected = false;
+    if (currentMillis - prevMillis >= timeout) {
+      prevMillis = currentMillis;
+      Serial.println("Can't connect to destination");
+      waitAnswer = false;
     }
   }
   // ============== End of While ========================
 
-  return connected;
 }
+

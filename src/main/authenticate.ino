@@ -1,4 +1,18 @@
-// To ensure the message is for this node with specific ID
+//====================================================================
+//====================================================================
+// Fuction for authentication purpose
+// List : 
+//
+// - isForMe(message)                   ==> check that received 
+//                                          message is for this node
+// - isFromSender(message, msgSender)   ==> check that received 
+//                                          message is from the right 
+//                                          sender
+// - isCodeRight(message, code)         ==> check that message code is
+//                                          same as what we want
+//====================================================================
+//====================================================================
+
 bool isForMe(String message)
 {
   String destination = "";

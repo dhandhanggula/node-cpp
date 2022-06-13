@@ -50,10 +50,8 @@ String nodeID = "";                   // to save nodID from EEPROM
 
 struct route{
   String destination;
-  String relayNode[10];
+  String routePath;
 };
-
-route routeToDestination;
 
 //====================================================================
 // R T C =============================================================
@@ -73,51 +71,16 @@ String messageReceived = "";
 String messageSent = "";
 String payload = "";                    // payload only
 
+unsigned long prevMillis = 0;
+
 //====================================================================
 // Other(s) ==========================================================
 //====================================================================
 
 void setup()
 {
-  // Reading the credentials saved in EEPROM
-  readNodeCredentials();
-
-  Serial.begin(9600);
-
-  // Activate LoRa
-  Serial.println("========================================");
-  Serial.print("Node with ID ");
-  Serial.print(nodeID);
-  Serial.println(" is active");
-  Serial.println("========================================");
-
-  if (!LoRa.begin(networkFreq)) {
-    Serial.println("Starting LoRa failed!");
-    while (1);
-  }
-
-  Serial.print("Frequency : ");
-  Serial.println(networkFreq);
-
-  LoRa.setTxPower(txPower);
-  Serial.print("Transmitter power (dB) : ");
-  Serial.println(txPower);
-
-  LoRa.setSpreadingFactor(spreadingFactor);
-  Serial.print("Spreading Factor : ");
-  Serial.println(spreadingFactor);
-
-  LoRa.setSignalBandwidth(signalBandwidth);
-  Serial.print("Signal Bandwidth : ");
-  Serial.println(signalBandwidth);
-
-  LoRa.setSyncWord(networkSync);
-  Serial.print("Network Sync Word : ");
-  Serial.println(networkSync, HEX);
-
-  Serial.println("Node is activated successfully =========");
-  Serial.println("========================================");
-  Serial.println(" ");
+  // Refer to setup.ino file
+  setupNode();
 }
 
 void loop()
@@ -130,6 +93,8 @@ void loop()
     while (LoRa.available()) {
       messageReceived += (char)LoRa.read();
     }
+
+    Serial.println(messageReceived);
   }
 
   // Answer if needed
@@ -137,5 +102,15 @@ void loop()
   {
     //answer protocol here
   }
+
+  // Test to ping 
+  
+  route toTested;
+  toTested.destination = "62698410GE";
+  toTested.routePath = "62698410GE";
+
+  Serial.println(ping(toTested));
+  
+  delay(2000);
 
 }

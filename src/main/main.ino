@@ -72,6 +72,7 @@ String messageSent = "";
 String payload = "";                    // payload only
 
 unsigned long prevMillis = 0;
+unsigned long pingMillis = 0;
 
 //====================================================================
 // Other(s) ==========================================================
@@ -100,7 +101,7 @@ void loop()
   // Answer if needed
   if (messageReceived != "")
   {
-    //answer protocol here
+    answer(messageReceived);
   }
 
   // Test to ping 
@@ -109,8 +110,6 @@ void loop()
   toTested.destination = "62698410GE";
   toTested.routePath = "62698410GE";
 
-  Serial.println(ping(toTested));
-  
-  delay(2000);
+  Serial.println(ping(toTested));  
 
 }

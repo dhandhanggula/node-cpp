@@ -10,8 +10,9 @@
 bool ping(route destinationRoute)
 {
   // change this code later
-  String msgCode = "00";
-  String msgID = "zzzz";        // get from timestamp
+  String msgCode = code("ping");
+  DateTime now = rtc.now();
+  String msgID = String(now.unixtime(), HEX); 
 
   String destination = destinationRoute.destination;
   String path = destinationRoute.routePath;
@@ -28,6 +29,8 @@ bool ping(route destinationRoute)
   bool waitAnswer = true;
   
   String receivedMsg = "";
+  pingMillis = millis();
+  prevMillis = millis();
 
   // ======================Start While==========================
   // Receiver mode until get response or timeout
@@ -55,10 +58,11 @@ bool ping(route destinationRoute)
     }
 
     // authentication
-    if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destination) == true && isCodeRight(receivedMsg, code("pingCode")) == true)
+    if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destination) == true && isCodeRight(receivedMsg, code("ansPing")) == true)
     {
       waitAnswer = false;
-      Serial.println("Connected to destination");
+      Serial.print("Connected to destination with time ");
+      Serial.println(millis() - pingMillis);
       return true;
     }
   }

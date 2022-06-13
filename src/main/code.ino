@@ -3,11 +3,12 @@
 // Message code
 // List :
 // - 00   ==> ping
-// - 81   ==> answer ping
+// - 80   ==> answer ping
 //====================================================================
 //====================================================================
 
 String code(String codeName)
 {
-  if(codeName == "pingCode"){return "00";}
+  if(codeName == "ping"){return "00";}
+  if(codeName == "ansPing"){return "80";}
 }

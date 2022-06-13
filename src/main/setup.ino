@@ -6,6 +6,7 @@
 // - Read node ID in EEPROM
 // - Initialize serial via Serial.begin()
 // - Initialize LoRa module
+// - Initialize node time
 //====================================================================
 //====================================================================
 
@@ -50,4 +51,6 @@ void setupNode()
   Serial.println("Node is activated successfully =========");
   Serial.println("========================================");
   Serial.println(" ");
+
+  initNetworkTime();
 }

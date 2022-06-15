@@ -74,6 +74,13 @@ String payload = "";                    // payload only
 unsigned long prevMillis = 0;
 unsigned long pingMillis = 0;
 
+
+String lastMsgID = "";
+unsigned long msgMillis = 0;
+int lastMsgCode = 404;
+
+String pingID = "";
+
 //====================================================================
 // Other(s) ==========================================================
 //====================================================================
@@ -90,7 +97,7 @@ void loop()
   messageReceived = "";
 
   // Read received packet
-  if (packetSize) {
+  if (packetSize) {;
     while (LoRa.available()) {
       messageReceived += (char)LoRa.read();
     }
@@ -109,7 +116,6 @@ void loop()
   route toTested;
   toTested.destination = "62698410GE";
   toTested.routePath = "62698410GE";
-
-  Serial.println(ping(toTested));  
+  ping(toTested);
 
 }

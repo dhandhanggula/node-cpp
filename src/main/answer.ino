@@ -31,20 +31,30 @@ void answer(String message)
   if(pathLength != 0)
   {
     // save route path to array
-    for(int i=0; i <= pathLength; i++)
+    for(int i=0; i < pathLength; i++)
     {
       path[i] = parsing(getMsgPath, ',', i);
     }
 
     // create reverse route path back to sender
-    for(int i=0; i<= pathLength; i++)
+    for(int i=0; i < pathLength; i++)
     {
-      if(path[pathLength - i] != "")
+      if(path[pathLength - (i + 1)] != "")
       {
         sendPath += path[pathLength - i] + ",";
       }
     }
 
+    // Add destination to last reverse route path
+    sendPath = sendPath + getMsgSender;
+    
+    int sendPathLength = sendPath.length();
+    String lastChar = String(sendPath.charAt(sendPathLength - 1));
+    if(lastChar == ",")
+    {
+      sendPath.remove(sendPathLength - 1);
+    }
+    //Serial.println(sendPath);
   }
 
 
@@ -74,14 +84,6 @@ void answer(String message)
 
     if(getMsgCode == code("ping"))
     {
-      int sendPathLength = sendPath.length();
-      String lastChar = String(sendPath.charAt(sendPathLength - 1));
-      if(lastChar == ",")
-      {
-        sendPath.remove(sendPathLength - 1);
-      }
-      //Serial.println(sendPath);
-
       // send answer
       String msgCode = code("ansPing");
       String msgID = getMsgID;

@@ -19,37 +19,61 @@ void answer(String message)
   String sendPath;
   String path[] = {};
 
-  //====================================================================
-  // Code OO ==> PING ==================================================
-  //====================================================================
+  // Get routing path
+  int pathLength = charMode(getMsgPath, ',');
 
-  if(getMsgCode == code("ping"))
+  if(pathLength == 0)
   {
-    //Save new path
-    int pathLength = charMode(getMsgPath, ',');
+    path[0] = getMsgSender;
+    sendPath = getMsgSender;
+  }
 
-    if(pathLength == 0){sendPath = getMsgSender;}
-    if(pathLength != 0)
+  if(pathLength != 0)
+  {
+    // save route path to array
+    for(int i=0; i <= pathLength; i++)
     {
-      // save route path to array
-      for(int i=0; i <= pathLength; i++)
+      path[i] = parsing(getMsgPath, ',', i);
+    }
+
+    // create reverse route path back to sender
+    for(int i=0; i<= pathLength; i++)
+    {
+      if(path[pathLength - i] != "")
       {
-        path[i] = parsing(getMsgPath, ',', i);
+        sendPath += path[pathLength - i] + ",";
       }
     }
 
+  }
 
-    if(getMsgRecipient == nodeID)
+
+
+  // Check getMsgRecipient
+  if(isForMe(message) == false)
+  {
+    for(int i=0; i<=pathLength; i++)
     {
-      // create reverse route path back to sender
-      for(int i=0; i<= pathLength; i++)
+      if(path[i] == nodeID)
       {
-        if(path[pathLength - i] != "")
-        {
-          sendPath += path[pathLength - i] + ",";
-        }
+        // Relay message if this node is in routing path
+        String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
+        
+        LoRa.beginPacket();
+        LoRa.print(sentMsg);
+        LoRa.endPacket();
       }
+    }
+  }
 
+  if(isForMe(message) == true)
+  {
+    //================================================================
+    // Code OO ==> PING ==============================================
+    //================================================================
+
+    if(getMsgCode == code("ping"))
+    {
       int sendPathLength = sendPath.length();
       String lastChar = String(sendPath.charAt(sendPathLength - 1));
       if(lastChar == ",")
@@ -70,19 +94,9 @@ void answer(String message)
       LoRa.endPacket();
     }
 
-    else
-    {
-      // check in list path this node is exist or not
-      for(int i=0; i<=pathLength; i++)
-      {
-        if(path[i] == nodeID);
-        {
-          // relay ping ==> send message as same as received message
-          String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
-        }
-      }
-    }
   }
+
+
 
   //====================================================================
   // Code xx ==> xx ==================================================

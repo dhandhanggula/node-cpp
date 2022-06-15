@@ -17,7 +17,8 @@ bool ping(route destinationRoute)
   String destination = destinationRoute.destination;
   String path = destinationRoute.routePath;
   Serial.print("Ping to ");
-  Serial.println(destination);
+  Serial.print(destination);
+  Serial.print(". ");
 
   // Send ping msg
   LoRa.beginPacket();
@@ -52,7 +53,7 @@ bool ping(route destinationRoute)
     if(currentMillis - prevMillis > 6000) 
     {
       prevMillis = currentMillis;
-      Serial.println("Can't connect to destination");
+      Serial.println("Request Time Out");
       waitAnswer = false;
       return false;
     }
@@ -61,8 +62,9 @@ bool ping(route destinationRoute)
     if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destination) == true && isCodeRight(receivedMsg, code("ansPing")) == true)
     {
       waitAnswer = false;
-      Serial.print("Connected to destination with time ");
-      Serial.println(millis() - pingMillis);
+      Serial.print("Connected with time ");
+      Serial.print(millis() - pingMillis);
+      Serial.println("ms");
       return true;
     }
   }

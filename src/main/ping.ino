@@ -32,6 +32,7 @@ bool ping(route destinationRoute)
   String receivedMsg = "";
   pingMillis = millis();
   prevMillis = millis();
+  unsigned long tempPingMillis;
 
   // ======================Start While==========================
   // Receiver mode until get response or timeout
@@ -45,6 +46,9 @@ bool ping(route destinationRoute)
       {
         receivedMsg += (char)LoRa.read();
       }
+
+      //Serial.println(receivedMsg);
+      tempPingMillis = millis();
     }
         
     // End connection if timeout
@@ -63,7 +67,7 @@ bool ping(route destinationRoute)
     {
       waitAnswer = false;
       Serial.print("Connected with time ");
-      Serial.print(millis() - pingMillis);
+      Serial.print(tempPingMillis - pingMillis);
       Serial.println("ms");
       return true;
     }

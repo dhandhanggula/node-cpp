@@ -94,6 +94,9 @@ void answer(String message)
       LoRa.beginPacket();
       LoRa.print(sentMsg);
       LoRa.endPacket();
+
+      Serial.print("Answer with : ");
+      Serial.println(sentMsg);
     }
 
   }

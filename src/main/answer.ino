@@ -17,45 +17,47 @@ void answer(String message)
   String getMsgPayload = parsing(message, '|', 5);
 
   String sendPath;
-
-  //Save new path
-  int pathLength = charMode(getMsgPath, ',');
   String path[] = {};
 
-  if(pathLength == 0){sendPath = getMsgSender;}
-  if(pathLength != 0)
-  {
-    for(int i=0; i <= pathLength; i++)
-    {
-      path[pathLength - i] = parsing(getMsgPath, ',', i);
-    }
+  //====================================================================
+  // Code OO ==> PING ==================================================
+  //====================================================================
 
-    // reverse route path back to sender
-    for(int i=0; i<= pathLength; i++)
-    {
-      if(path[i] != "")
-      {
-        sendPath += path[i] + ",";
-      }
-    }
-  }
-
-
-  int sendPathLength = sendPath.length();
-  String lastChar = String(sendPath.charAt(sendPathLength - 1));
-  if(lastChar == ",")
-  {
-    sendPath.remove(sendPathLength - 1);
-  }
-
-  //Serial.println(sendPath);
-  
-
-  // Answer Ping MSG
   if(getMsgCode == code("ping"))
   {
+    //Save new path
+    int pathLength = charMode(getMsgPath, ',');
+
+    if(pathLength == 0){sendPath = getMsgSender;}
+    if(pathLength != 0)
+    {
+      // save route path to array
+      for(int i=0; i <= pathLength; i++)
+      {
+        path[i] = parsing(getMsgPath, ',', i);
+      }
+    }
+
+
     if(getMsgRecipient == nodeID)
     {
+      // create reverse route path back to sender
+      for(int i=0; i<= pathLength; i++)
+      {
+        if(path[pathLength - i] != "")
+        {
+          sendPath += path[pathLength - i] + ",";
+        }
+      }
+
+      int sendPathLength = sendPath.length();
+      String lastChar = String(sendPath.charAt(sendPathLength - 1));
+      if(lastChar == ",")
+      {
+        sendPath.remove(sendPathLength - 1);
+      }
+      //Serial.println(sendPath);
+
       // send answer
       String msgCode = code("ansPing");
       String msgID = getMsgID;
@@ -67,5 +69,23 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket();
     }
+
+    else
+    {
+      // check in list path this node is exist or not
+      for(int i=0; i<=pathLength; i++)
+      {
+        if(path[i] == nodeID);
+        {
+          // relay ping ==> send message as same as received message
+          String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
+        }
+      }
+    }
   }
+
+  //====================================================================
+  // Code xx ==> xx ==================================================
+  //====================================================================
+
 }

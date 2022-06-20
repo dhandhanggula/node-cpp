@@ -7,71 +7,75 @@
 //====================================================================
 //====================================================================
 
-bool ping(route destinationRoute)
+bool ping(String destinationPing, String routePathPing)
 {
-  // change this code later
   String msgCode = code("ping");
   DateTime now = rtc.now();
   String msgID = String(now.unixtime(), HEX); 
 
-  String destination = destinationRoute.destination;
-  String path = destinationRoute.routePath;
-  Serial.print("Ping to ");
-  Serial.print(destination);
-  Serial.print(". ");
-
-  // Send ping msg
-  LoRa.beginPacket();
-  String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + destination + parser + path + parser + "99";
-  LoRa.print(sentMsg);
-  LoRa.endPacket();
-
-  // Wait for the answer
-  bool waitAnswer = true;
-  
-  String receivedMsg = "";
-  pingMillis = millis();
-  prevMillis = millis();
-  unsigned long tempPingMillis;
-
-  // ======================Start While==========================
-  // Receiver mode until get response or timeout
-  while(waitAnswer == true)
+  if(lastMsgID != msgID)
   {
-    // Get packet
-    int packetSize = LoRa.parsePacket();
-    if (packetSize)
+    Serial.print("Ping to ");
+    Serial.print(destinationPing);
+    Serial.print(". ");
+
+    // Send ping msg
+    LoRa.beginPacket();
+    String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + destinationPing + parser + routePathPing + parser + "99";
+    LoRa.print(sentMsg);
+    LoRa.endPacket();
+
+    lastMsgID = msgID;
+    //Serial.println(sentMsg);
+
+    // Wait for the answer
+    bool waitAnswer = true;
+    
+    String receivedMsg = "";
+    pingMillis = millis();
+    prevMillis = millis();
+    unsigned long tempPingMillis;
+
+    // ======================Start While==========================
+    // Receiver mode until get response or timeout
+    while(waitAnswer == true)
     {
-      while (LoRa.available())
+      // Get packet
+      int packetSize = LoRa.parsePacket();
+      if (packetSize)
       {
-        receivedMsg += (char)LoRa.read();
+        while (LoRa.available())
+        {
+          receivedMsg += (char)LoRa.read();
+        }
+
+        //Serial.println(receivedMsg);
+        tempPingMillis = millis();
+      }
+          
+      // End connection if timeout
+      unsigned long currentMillis = millis();
+
+      if(currentMillis - prevMillis > 6000) 
+      {
+        prevMillis = currentMillis;
+        Serial.println("Request Time Out");
+        waitAnswer = false;
+        return false;
       }
 
-      //Serial.println(receivedMsg);
-      tempPingMillis = millis();
-    }
-        
-    // End connection if timeout
-    unsigned long currentMillis = millis();
+      // authentication
+      if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destinationPing) == true && isCodeRight(receivedMsg, code("ansPing")) == true)
+      {
+        waitAnswer = false;
+        Serial.print("Connected with time ");
+        Serial.print(tempPingMillis - pingMillis);
+        Serial.println("ms");
+        return true;
+      }
 
-    if(currentMillis - prevMillis > 6000) 
-    {
-      prevMillis = currentMillis;
-      Serial.println("Request Time Out");
-      waitAnswer = false;
-      return false;
     }
-
-    // authentication
-    if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destination) == true && isCodeRight(receivedMsg, code("ansPing")) == true)
-    {
-      waitAnswer = false;
-      Serial.print("Connected with time ");
-      Serial.print(tempPingMillis - pingMillis);
-      Serial.println("ms");
-      return true;
-    }
+    // ============== End of While ========================
   }
-  // ============== End of While ========================
 }
 

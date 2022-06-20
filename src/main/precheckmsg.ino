@@ -12,14 +12,6 @@ bool precheckmsg(String message)
 
   else
   {
-    for(int i=0; i<5; i++)
-    {      
-      if(parsing(message, '|', i) == NULL || parsing(message, '|', i) == "" )
-      {
-        return false;
-      }
-    }
-
     return true;
   }
 }

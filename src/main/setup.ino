@@ -10,12 +10,12 @@
 //====================================================================
 //====================================================================
 
-void setupNode()
+void nodeConfig()
 {
   // Reading the credentials saved in EEPROM
   readNodeCredentials();
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // Activate LoRa
   Serial.println("========================================");

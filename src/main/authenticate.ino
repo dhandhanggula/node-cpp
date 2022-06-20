@@ -15,21 +15,23 @@
 
 bool isForMe(String message)
 {
-  String destination = "";
-  destination = parsing(message, '|', 3);
+  String parseDestination = "";
+  parseDestination = parsing(message, '|', 3);
 
   // Check message structure
-  if(destination == nodeID || destination == "0"){return true;}
+  if(parseDestination == nodeID || parseDestination == "0")
+  {
+    return true;}
 
   return false;
 }
 
 bool isFromSender(String message, String msgSender)
 {
-  String sender = "";
-  sender = parsing(message, '|', 2);
+  String parseSender = "";
+  parseSender = parsing(message, '|', 2);
 
-  if(sender == msgSender){return true;}
+  if(parseSender == msgSender){return true;}
 
   return false;  
 }

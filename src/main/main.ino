@@ -38,7 +38,7 @@ String nodeID = "";                   // to save nodID from EEPROM
 
 #define networkFreq 915E6             // 433E6, 868E6, 915E6
 #define networkSync 0x12              // 0x00 - 0xFF
-#define spreadingFactor 8             // 6 - 12
+#define spreadingFactor 7             // 6 - 12
 #define signalBandwidth 125E3         // 7.8E3, 10.4E3, 15.6E3, 
                                       // 20.8E3, 31.25E3, 41.7E3, 
                                       // 62.5E3, 125E3, 250E3, 500E3
@@ -81,7 +81,11 @@ int lastMsgCode = 404;
 
 String pingID = "";
 
-route toTested[10];
+//route toTested[10];
+route routeBook;
+
+String routeDestinationBook[] = {""};
+String routeDestinationPathBook[] = {""};
 
 //====================================================================
 // Other(s) ==========================================================
@@ -90,9 +94,12 @@ route toTested[10];
 void setup()
 {
   // Refer to setup.ino file
-  setupNode();
-toTested[0].destination = "YrCGaw";
-toTested[0].routePath = "YrCGaw";
+  nodeConfig();
+  //routeBook.destination = "YrCGaw";
+  //routeBook.routePath = "YrCGaw";
+
+  //routeDestinationBook[0] = "YrCGaw";
+  //routeDestinationPathBook[0] = "YrCGaw";
 }
 
 void loop()
@@ -122,7 +129,7 @@ void loop()
   String serialMsg = "";
   if(Serial.available())
   {
-    delay(100);
+    delay(10);
     while(Serial.available() > 0)
     {
       serialMsg += (char)Serial.read();
@@ -132,7 +139,12 @@ void loop()
 
   if(serialMsg != "")
   {
+    Serial.print(serialMsg);
     uartcom(serialMsg);
   }
 
+  //ping(routeBook);
+  //ping(routeDestinationBook[0], routeDestinationPathBook[0]);
+
+  //delay(1000);
 }

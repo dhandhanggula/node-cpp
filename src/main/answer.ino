@@ -9,6 +9,12 @@
 
 void answer(String message)
 {
+  // check if message is null, return to main loop
+  if(message == ""){return; }
+  // check if message header is broken, return to main loop
+  if(precheckmsg(message) == false){return; }
+
+  // if header is OK, do next
   String getMsgCode = parsing(message, '|', 0);
   String getMsgID = parsing(message, '|', 1);
   String getMsgSender = parsing(message, '|', 2);
@@ -16,8 +22,8 @@ void answer(String message)
   String getMsgPath = parsing(message, '|', 4);
   String getMsgPayload = parsing(message, '|', 5);
 
-  String sendPath;
-  String path[] = {};
+  String sendPath = "";
+  String path[] = {""};
 
   // Get routing path
   int pathLength = charMode(getMsgPath, ',');
@@ -54,7 +60,6 @@ void answer(String message)
     {
       sendPath.remove(sendPathLength - 1);
     }
-    //Serial.println(sendPath);
   }
 
 
@@ -62,6 +67,41 @@ void answer(String message)
   // Check getMsgRecipient
   if(isForMe(message) == false)
   {
+    // if rreq
+    if(getMsgCode == code("rreq"))
+    {
+      if(getMsgPath != "0")
+      {
+        getMsgPath = getMsgPath + "," + nodeID;
+      }
+      if(getMsgPath == "0")
+      {
+        getMsgPath = nodeID;
+      }
+      // relay msg
+      String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
+      
+      LoRa.beginPacket();
+      LoRa.print(sentMsg);
+      LoRa.endPacket();
+      return;
+    }
+
+    // if rerr
+    if(getMsgCode == code("rerr"))
+    {
+      //do here
+
+      //relay msg
+      String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
+      
+      LoRa.beginPacket();
+      LoRa.print(sentMsg);
+      LoRa.endPacket();
+      return;
+    }
+
+    // if other
     for(int i=0; i<=pathLength; i++)
     {
       if(path[i] == nodeID)
@@ -72,12 +112,14 @@ void answer(String message)
         LoRa.beginPacket();
         LoRa.print(sentMsg);
         LoRa.endPacket();
+        return;
       }
     }
   }
 
   if(isForMe(message) == true)
   {
+    
     //================================================================
     // Code OO ==> PING ==============================================
     //================================================================
@@ -85,6 +127,8 @@ void answer(String message)
     if(getMsgCode == code("ping"))
     {
       // send answer
+      Serial.print("Answer with : ");
+
       String msgCode = code("ansPing");
       String msgID = getMsgID;
       String destination = getMsgSender;
@@ -95,16 +139,50 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket();
 
-      Serial.print("Answer with : ");
       Serial.println(sentMsg);
+      return;
+    }
+
+    //====================================================================
+    // Code 20 ==> RREQ ==================================================
+    //====================================================================
+    if(getMsgCode == code("rreq"))
+    {
+      // Send RREP
+      String msgCode = code("rrep");
+      String msgID = getMsgID;
+      String destination = getMsgSender;
+      String path = sendPath;
+      String payload;
+      if(getMsgPath != "0")
+      {
+        payload = getMsgPath + "," + nodeID;
+      }
+      if(getMsgPath == "0")
+      {
+        payload = nodeID;
+      }
+      String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + destination + parser + path + parser + payload;
+
+      LoRa.beginPacket();
+      LoRa.print(sentMsg);
+      LoRa.endPacket();
+
+      Serial.print("Send RREP : ");
+      Serial.println(sentMsg);
+      return;
+    }
+
+    //====================================================================
+    // Code 10 ==> General Message =======================================
+    //====================================================================
+    if(getMsgCode == code("msg"))
+    {
+      Serial.println(getMsgPayload);
+
+      return;
     }
 
   }
-
-
-
-  //====================================================================
-  // Code xx ==> xx ==================================================
-  //====================================================================
-
 }
+

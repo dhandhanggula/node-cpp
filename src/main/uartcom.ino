@@ -4,22 +4,25 @@ void uartcom(String serialcommand)
   serialcommand.replace("\r", "");
 
   if(serialcommand == ""){return;}
+  
   else
   {
     String command = parsing(serialcommand, '|', 0);
 
     // PING
+    
     if(command == "ping")
     {
       String nodeTarget = parsing(serialcommand, '|', 1);
-      for(int i=0; i<10; i++)
+      for(int i=0; i<20; i++)
       {
-        if(String(toTested[i].destination) == parsing(serialcommand, '|', 1))
+        if(String(routeDestinationBook[i]) == parsing(serialcommand, '|', 1))
         {
-          ping(toTested[i]);
+          ping(routeDestinationBook[i], routeDestinationPathBook[i]);
           return;
         }
       }
+
       Serial.println("Error. Code : 404");
       Serial.print("Didn't have link with ");
       Serial.println(nodeTarget);
@@ -27,6 +30,7 @@ void uartcom(String serialcommand)
       Serial.print("Please do RREQ with rreq|{destination node}");
       return;
     }
+    
 
     // SET ID
     if(command == "set_id")
@@ -35,7 +39,7 @@ void uartcom(String serialcommand)
 
       if(newID.length() != 6) 
       {
-        Serial.println("Error. ID length must be 6 characters")
+        Serial.println("Error. ID length must be 6 characters");
         return; 
       }
       else
@@ -72,11 +76,22 @@ void uartcom(String serialcommand)
       Serial.println(rtc.now().unixtime(), HEX);
       return;
     }
-    
+
     if(command == "at")
     {
       Serial.println("OK");
       return;
     }
+    
+    if(command == "rreq")
+    {
+      String nodeTarget = parsing(serialcommand, '|', 1);
+
+      // SEND RREQ
+      routeDiscovery(nodeTarget);
+
+      return;
+    }
+    
   }
 }

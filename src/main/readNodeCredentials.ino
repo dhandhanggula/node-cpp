@@ -7,7 +7,7 @@
 void readNodeCredentials()
 {
   // Read node ID in EEPROM
-  for(int i=0; i<10; i++)
+  for(int i=0; i<6; i++)
   {
     nodeID += (char)EEPROM.read(i);
   }

@@ -81,6 +81,8 @@ int lastMsgCode = 404;
 
 String pingID = "";
 
+route toTested[10];
+
 //====================================================================
 // Other(s) ==========================================================
 //====================================================================
@@ -89,6 +91,8 @@ void setup()
 {
   // Refer to setup.ino file
   setupNode();
+toTested[0].destination = "YrCGaw";
+toTested[0].routePath = "YrCGaw";
 }
 
 void loop()
@@ -112,10 +116,23 @@ void loop()
   }
 
   // Test to ping 
-  
-  route toTested;
-  toTested.destination = "62698410GE";
-  toTested.routePath = "62698410GE";
-  ping(toTested);
+  //ping(toTested);
+
+  // read serial command
+  String serialMsg = "";
+  if(Serial.available())
+  {
+    delay(100);
+    while(Serial.available() > 0)
+    {
+      serialMsg += (char)Serial.read();
+    }
+    Serial.flush();
+  }
+
+  if(serialMsg != "")
+  {
+    uartcom(serialMsg);
+  }
 
 }

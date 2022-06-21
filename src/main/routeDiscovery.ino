@@ -45,7 +45,7 @@ int routeDiscovery(String destinationRoute)
     }
         
     // End connection if timeout
-    unsigned long currentMillis = millis();
+    unsigne\d long currentMillis = millis();
 
     if(currentMillis - prevMillis > 6000) 
     {
@@ -65,9 +65,9 @@ int routeDiscovery(String destinationRoute)
 
       for(int i=0; i<20; i++)
       {
-        if(routeDestinationBook[i] == destinationRoute)
+        if(destinationBook[i] == destinationRoute)
         {
-          routeDestinationPathBook[i] = parsing(receivedMsg, '|', 5);
+          routeBook[i] = parsing(receivedMsg, '|', 5);
           return 201;
         }
       }
@@ -76,11 +76,11 @@ int routeDiscovery(String destinationRoute)
       for(int i = 0; i<20; i++)
       {
         // save as new route path
-        if(routeDestinationBook[i] == "")
+        if(destinationBook[i] == "")
         {
-          routeDestinationBook[i] = destinationRoute;
-          routeDestinationPathBook[i] = parsing(receivedMsg, '|', 5);
-          Serial.println(routeDestinationPathBook[i]);
+          destinationBook[i] = destinationRoute;
+          routeBook[i] = parsing(receivedMsg, '|', 5);
+          Serial.println(routeBook[i]);
           return 201;
         }
       }

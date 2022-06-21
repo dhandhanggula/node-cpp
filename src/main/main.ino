@@ -81,11 +81,8 @@ int lastMsgCode = 404;
 
 String pingID = "";
 
-//route toTested[10];
-route routeBook;
-
-String routeDestinationBook[] = {""};
-String routeDestinationPathBook[] = {""};
+String destinationBook[] = {""};
+String routeBook[] = {""};
 
 //====================================================================
 // Other(s) ==========================================================
@@ -95,11 +92,6 @@ void setup()
 {
   // Refer to setup.ino file
   nodeConfig();
-  //routeBook.destination = "YrCGaw";
-  //routeBook.routePath = "YrCGaw";
-
-  //routeDestinationBook[0] = "YrCGaw";
-  //routeDestinationPathBook[0] = "YrCGaw";
 }
 
 void loop()
@@ -122,9 +114,6 @@ void loop()
     answer(messageReceived);
   }
 
-  // Test to ping 
-  //ping(toTested);
-
   // read serial command
   String serialMsg = "";
   if(Serial.available())
@@ -143,8 +132,4 @@ void loop()
     uartcom(serialMsg);
   }
 
-  //ping(routeBook);
-  //ping(routeDestinationBook[0], routeDestinationPathBook[0]);
-
-  //delay(1000);
 }

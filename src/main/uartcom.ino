@@ -16,9 +16,9 @@ void uartcom(String serialcommand)
       String nodeTarget = parsing(serialcommand, '|', 1);
       for(int i=0; i<20; i++)
       {
-        if(String(routeDestinationBook[i]) == parsing(serialcommand, '|', 1))
+        if(String(destinationBook[i]) == parsing(serialcommand, '|', 1))
         {
-          ping(routeDestinationBook[i], routeDestinationPathBook[i]);
+          ping(destinationBook[i], routeBook[i]);
           return;
         }
       }
@@ -77,20 +77,36 @@ void uartcom(String serialcommand)
       return;
     }
 
+    // AT Command
     if(command == "at")
     {
       Serial.println("OK");
       return;
     }
     
+    // RREQ
     if(command == "rreq")
     {
       String nodeTarget = parsing(serialcommand, '|', 1);
-
-      // SEND RREQ
       routeDiscovery(nodeTarget);
-
       return;
+    }
+
+    // Print Routing Cache
+    if(command == "print_route_cache")
+    {
+      Serial.print("No. \t");
+      Serial.print("Destination \t");
+      Serial.println("Route Path");
+
+      for(int i=0; i<sizeof(destinationBook); i++)
+      {
+        Serial.print(i);
+        Serial.print("\t");
+        Serial.print(destinationBook[i]);
+        Serial.print("\t \t");
+        Serial.println(routeBook[i]);
+      }
     }
     
   }

@@ -14,20 +14,7 @@ void uartcom(String serialcommand)
     if(command == "ping")
     {
       String nodeTarget = parsing(serialcommand, '|', 1);
-      for(int i=0; i<20; i++)
-      {
-        if(String(destinationBook[i]) == parsing(serialcommand, '|', 1))
-        {
-          ping(destinationBook[i], routeBook[i]);
-          return;
-        }
-      }
-
-      Serial.println("Error. Code : 404");
-      Serial.print("Didn't have link with ");
-      Serial.println(nodeTarget);
-
-      Serial.print("Please do RREQ with rreq|{destination node}");
+      ping(nodeTarget, nodeTarget);
       return;
     }
     
@@ -53,11 +40,9 @@ void uartcom(String serialcommand)
           EEPROM.write(i, newID.charAt(i));
         }
 
-        delay(100);
-        //update nodeID
-        readNodeCredentials();
-        Serial.print("New ID :");
-        Serial.println(nodeID);
+        delay(1);
+
+        Serial.println("Device ID has been changed. Please restart your device!");
         return;
       }
     }
@@ -77,14 +62,14 @@ void uartcom(String serialcommand)
       return;
     }
 
-    // AT Command
+    // AT Command, just to check device is connected
     if(command == "at")
     {
       Serial.println("OK");
       return;
     }
     
-    // RREQ
+    // RREQ --> ex: rreq|YrCGaw
     if(command == "rreq")
     {
       String nodeTarget = parsing(serialcommand, '|', 1);
@@ -92,21 +77,20 @@ void uartcom(String serialcommand)
       return;
     }
 
-    // Print Routing Cache
-    if(command == "print_route_cache")
+    // print route --> ex: print_route
+    if(command == "print_route")
     {
-      Serial.print("No. \t");
-      Serial.print("Destination \t");
-      Serial.println("Route Path");
+      Serial.print(lastDestination);
+      Serial.print("--");
+      Serial.println(lastRoute);
+    }
 
-      for(int i=0; i<sizeof(destinationBook); i++)
-      {
-        Serial.print(i);
-        Serial.print("\t");
-        Serial.print(destinationBook[i]);
-        Serial.print("\t \t");
-        Serial.println(routeBook[i]);
-      }
+    // delete command --> ex: del_route
+    if(command == "del_route")
+    {
+      lastDestination = "";
+      lastRoute = "";
+      Serial.println("Route cache deleted");
     }
     
   }

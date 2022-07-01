@@ -1,5 +1,5 @@
 
-int routeDiscovery(String destinationRoute)
+String routeDiscovery(String destinationID)
 {
   // SEND RREQ
   String msgCode = code("rreq");
@@ -8,14 +8,14 @@ int routeDiscovery(String destinationRoute)
 
   String path = "0";
   Serial.print("Send RREQ to ");
-  Serial.print(destinationRoute);
+  Serial.print(destinationID);
   Serial.println(".");
   parser = "|";
 
-  // Send ping msg
+  // Send rreq msg
   LoRa.beginPacket();
-  String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + destinationRoute + parser + path + parser + "99";
-  //Serial.println(sentMsg);
+  String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + destinationID + parser + path + parser + "99";
+  Serial.println(sentMsg);
   LoRa.print(sentMsg);
   LoRa.endPacket();
 
@@ -40,12 +40,13 @@ int routeDiscovery(String destinationRoute)
         receivedMsg += (char)LoRa.read();
       }
 
+      Serial.print("Received : ");
       Serial.println(receivedMsg);
       tempPingMillis = millis();
     }
         
     // End connection if timeout
-    unsigne\d long currentMillis = millis();
+    unsigned long currentMillis = millis();
 
     if(currentMillis - prevMillis > 6000) 
     {
@@ -53,37 +54,24 @@ int routeDiscovery(String destinationRoute)
       Serial.println("Error. Code 408");
       Serial.println("Request Time Out");
       waitAnswer = false;
-      return 404;
+      return "404";
     }
 
     // authentication
-    if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destinationRoute) == true && isCodeRight(receivedMsg, code("rrep")) == true)
+    if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destinationID) == true && isCodeRight(receivedMsg, code("rrep")) == true)
     {
       waitAnswer = false;
+      
+      String getPath = parsing(receivedMsg, '|', 5);
       Serial.print("Get link to ");
-      Serial.println(destinationRoute);
+      Serial.print(destinationID);
+      Serial.print(" via ");
+      Serial.println(getPath);
 
-      for(int i=0; i<20; i++)
-      {
-        if(destinationBook[i] == destinationRoute)
-        {
-          routeBook[i] = parsing(receivedMsg, '|', 5);
-          return 201;
-        }
-      }
+      lastDestination = destinationID;
+      lastRoute = getPath;
 
-      // create in bookmark
-      for(int i = 0; i<20; i++)
-      {
-        // save as new route path
-        if(destinationBook[i] == "")
-        {
-          destinationBook[i] = destinationRoute;
-          routeBook[i] = parsing(receivedMsg, '|', 5);
-          Serial.println(routeBook[i]);
-          return 201;
-        }
-      }
+      return "201";
     }
   }
   // ============== End of While ========================

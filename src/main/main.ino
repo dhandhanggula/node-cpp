@@ -81,17 +81,62 @@ int lastMsgCode = 404;
 
 String pingID = "";
 
-String destinationBook[] = {""};
-String routeBook[] = {""};
+//String listDestination[10] = {""};
+//String listRoute[10] = {""};
 
+String lastDestination = "";
+String lastRoute = "";
 //====================================================================
 // Other(s) ==========================================================
 //====================================================================
 
 void setup()
 {
-  // Refer to setup.ino file
-  nodeConfig();
+  // Reading the credentials saved in EEPROM
+  for(int i=0; i<6; i++)
+  {
+    nodeID += (char)EEPROM.read(i);
+  }
+
+
+  Serial.begin(115200);
+
+  // Activate LoRa
+  Serial.println("========================================");
+  Serial.print("Node with ID ");
+  Serial.print(nodeID);
+  Serial.println(" is active");
+  Serial.println("========================================");
+
+  if (!LoRa.begin(networkFreq)) {
+    Serial.println("Starting LoRa failed!");
+    while (1);
+  }
+
+  Serial.print("Frequency : ");
+  Serial.println(networkFreq);
+
+  LoRa.setTxPower(txPower);
+  Serial.print("Transmitter power (dB) : ");
+  Serial.println(txPower);
+
+  LoRa.setSpreadingFactor(spreadingFactor);
+  Serial.print("Spreading Factor : ");
+  Serial.println(spreadingFactor);
+
+  LoRa.setSignalBandwidth(signalBandwidth);
+  Serial.print("Signal Bandwidth : ");
+  Serial.println(signalBandwidth);
+
+  LoRa.setSyncWord(networkSync);
+  Serial.print("Network Sync Word : ");
+  Serial.println(networkSync, HEX);
+
+  Serial.println("Node is activated successfully =========");
+  Serial.println("========================================");
+  Serial.println(" ");
+
+  initNetworkTime();
 }
 
 void loop()

@@ -15,9 +15,9 @@ bool ping(String destinationPing, String routePathPing)
 
   if(lastMsgID != msgID)
   {
-    Serial.print("Ping to ");
+    Serial.print(F("Ping to "));
     Serial.print(destinationPing);
-    Serial.print(". ");
+    Serial.print(F(". "));
 
     // Send ping msg
     LoRa.beginPacket();
@@ -59,7 +59,7 @@ bool ping(String destinationPing, String routePathPing)
       if(currentMillis - prevMillis > 6000) 
       {
         prevMillis = currentMillis;
-        Serial.println("Request Time Out");
+        Serial.println(F("Request Time Out"));
         waitAnswer = false;
         return false;
       }
@@ -68,9 +68,9 @@ bool ping(String destinationPing, String routePathPing)
       if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destinationPing) == true && isCodeRight(receivedMsg, code("ansPing")) == true)
       {
         waitAnswer = false;
-        Serial.print("Connected with time ");
+        Serial.print(F("Connected with time "));
         Serial.print(tempPingMillis - pingMillis);
-        Serial.println("ms");
+        Serial.println(F("ms"));
         return true;
       }
 

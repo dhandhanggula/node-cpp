@@ -1,6 +1,6 @@
 // read how many character in given string
 
-int charMode(String givenString, char Targeted)
+int charCount(String givenString, char Targeted)
 {
   int stringLength = givenString.length();
   int charCount = 0;

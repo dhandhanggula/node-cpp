@@ -48,10 +48,8 @@ String nodeID = "";                   // to save nodID from EEPROM
 // Mesh Route ========================================================
 //====================================================================
 
-struct route{
-  String destination;
-  String routePath;
-};
+String lastDestination = "";
+String lastRoute = "";
 
 //====================================================================
 // R T C =============================================================
@@ -64,7 +62,6 @@ RTC_DS1307 rtc;
 // Message Structure
 // MsgCode | MsgID | Sender | Destination | Route Path | Payload
 //====================================================================
-int registerStatus = 0;
 
 String parser = "|";
 String messageReceived = "";
@@ -77,15 +74,7 @@ unsigned long pingMillis = 0;
 
 String lastMsgID = "";
 unsigned long msgMillis = 0;
-int lastMsgCode = 404;
 
-String pingID = "";
-
-//String listDestination[10] = {""};
-//String listRoute[10] = {""};
-
-String lastDestination = "";
-String lastRoute = "";
 //====================================================================
 // Other(s) ==========================================================
 //====================================================================
@@ -102,41 +91,42 @@ void setup()
   Serial.begin(115200);
 
   // Activate LoRa
-  Serial.println("========================================");
-  Serial.print("Node with ID ");
+  Serial.println(F("========================================"));
+  Serial.print(F("Node with ID "));
   Serial.print(nodeID);
-  Serial.println(" is active");
-  Serial.println("========================================");
+  Serial.println(F(" is active"));
+  Serial.println(F("========================================"));
 
   if (!LoRa.begin(networkFreq)) {
-    Serial.println("Starting LoRa failed!");
+    Serial.println(F("Starting LoRa failed!"));
     while (1);
   }
 
-  Serial.print("Frequency : ");
+  Serial.print(F("Frequency : "));
   Serial.println(networkFreq);
 
   LoRa.setTxPower(txPower);
-  Serial.print("Transmitter power (dB) : ");
+  Serial.print(F("Transmitter power (dB) : "));
   Serial.println(txPower);
 
   LoRa.setSpreadingFactor(spreadingFactor);
-  Serial.print("Spreading Factor : ");
+  Serial.print(F("Spreading Factor : "));
   Serial.println(spreadingFactor);
 
   LoRa.setSignalBandwidth(signalBandwidth);
-  Serial.print("Signal Bandwidth : ");
+  Serial.print(F("Signal Bandwidth : "));
   Serial.println(signalBandwidth);
 
   LoRa.setSyncWord(networkSync);
-  Serial.print("Network Sync Word : ");
+  Serial.print(F("Network Sync Word : "));
   Serial.println(networkSync, HEX);
 
-  Serial.println("Node is activated successfully =========");
-  Serial.println("========================================");
-  Serial.println(" ");
+  Serial.println(F("Node is activated successfully ========="));
+  Serial.println(F("========================================"));
+  Serial.println("\n");
 
-  initNetworkTime();
+  rtc.begin();
+  rtc.adjust(DateTime(2022, 1, 1, 0, 0, 0));
 }
 
 void loop()
@@ -169,10 +159,8 @@ void loop()
       serialMsg += (char)Serial.read();
     }
     Serial.flush();
-  }
 
-  if(serialMsg != "")
-  {
+    // pass to uartcommand
     Serial.print(serialMsg);
     uartcom(serialMsg);
   }

@@ -11,6 +11,7 @@ void answer(String message)
 {
   // check if message is null, return to main loop
   if(message == ""){return; }
+  
   // check if message header is broken, return to main loop
   if(precheckmsg(message) == false){return; }
 
@@ -26,7 +27,7 @@ void answer(String message)
   String path[] = {""};
 
   // Get routing path
-  int pathLength = charMode(getMsgPath, ',');
+  int pathLength = charCount(getMsgPath, ',');
 
   if(pathLength == 0)
   {
@@ -127,7 +128,7 @@ void answer(String message)
     if(getMsgCode == code("ping"))
     {
       // send answer
-      Serial.print("Answer with : ");
+      Serial.print(F("Answer with : "));
 
       String msgCode = code("ansPing");
       String msgID = getMsgID;

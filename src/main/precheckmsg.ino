@@ -8,10 +8,7 @@
 
 bool precheckmsg(String message)
 {
-  if(charMode(message, '|') != 5){return false;}
-
-  else
-  {
-    return true;
-  }
+  if(charCount(message, '|') != 5){return false;}
+  
+  return true;
 }

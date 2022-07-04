@@ -4,18 +4,41 @@ void uartcom(String serialcommand)
   serialcommand.replace("\r", "");
 
   if(serialcommand == ""){return;}
-  
+
   else
   {
     String command = parsing(serialcommand, '|', 0);
 
     // PING
-    
     if(command == "ping")
     {
       String nodeTarget = parsing(serialcommand, '|', 1);
-      ping(nodeTarget, nodeTarget);
-      return;
+
+      if(lastDestination == nodeTarget){
+        ping(nodeTarget, lastRoute);
+        return;
+      }
+
+      else
+      {
+        // del cache
+        lastDestination = "";
+        lastRoute = "";
+
+        //do rreq
+        String response = routeDiscovery(nodeTarget);
+
+        if(response == "201")
+        {
+          //ping
+          ping(nodeTarget, lastRoute);
+          return;
+        }
+
+        Serial.print(F("Cant connect to "));
+        Serial.println(nodeTarget);
+        return;
+      }
     }
     
 
@@ -26,31 +49,25 @@ void uartcom(String serialcommand)
 
       if(newID.length() != 6) 
       {
-        Serial.println("Error. ID length must be 6 characters");
+        Serial.println(F("Error. ID length must be 6 characters"));
         return; 
       }
-      else
+
+      for(int i=0; i<6; i++)
       {
-        for(int i=0; i<EEPROM.length(); i++)
-        {
-          EEPROM.write(i, 0);
-        }
-        for(int i=0; i<6; i++)
-        {
-          EEPROM.write(i, newID.charAt(i));
-        }
-
+        EEPROM.write(i, 0);
         delay(1);
-
-        Serial.println("Device ID has been changed. Please restart your device!");
-        return;
+        EEPROM.write(i, newID.charAt(i));
+        delay(1);
       }
+
+      Serial.println(F("Device ID has been changed. Please restart your device!"));
+      return;
     }
 
     // READ ID
     if(command == "read_id")
     {
-      //readNodeCredentials();
       Serial.println(nodeID);
       return;
     }
@@ -81,8 +98,9 @@ void uartcom(String serialcommand)
     if(command == "print_route")
     {
       Serial.print(lastDestination);
-      Serial.print("--");
+      Serial.print(F("--"));
       Serial.println(lastRoute);
+      return;
     }
 
     // delete command --> ex: del_route
@@ -90,7 +108,8 @@ void uartcom(String serialcommand)
     {
       lastDestination = "";
       lastRoute = "";
-      Serial.println("Route cache deleted");
+      Serial.println(F("Route cache deleted"));
+      return;
     }
     
   }

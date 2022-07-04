@@ -21,7 +21,8 @@ bool isForMe(String message)
   // Check message structure
   if(parseDestination == nodeID || parseDestination == "0")
   {
-    return true;}
+    return true;
+  }
 
   return false;
 }

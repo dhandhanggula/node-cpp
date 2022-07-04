@@ -7,9 +7,9 @@ String routeDiscovery(String destinationID)
   String msgID = String(now.unixtime(), HEX); 
 
   String path = "0";
-  Serial.print("Send RREQ to ");
+  Serial.print(F("Send RREQ to "));
   Serial.print(destinationID);
-  Serial.println(".");
+  Serial.println(F("."));
   parser = "|";
 
   // Send rreq msg
@@ -31,6 +31,8 @@ String routeDiscovery(String destinationID)
   // Receiver mode until get response or timeout
   while(waitAnswer == true)
   {
+    receivedMsg = "";
+
     // Get packet
     int packetSize = LoRa.parsePacket();
     if (packetSize)
@@ -40,8 +42,9 @@ String routeDiscovery(String destinationID)
         receivedMsg += (char)LoRa.read();
       }
 
-      Serial.print("Received : ");
+      Serial.print(F("Received : "));
       Serial.println(receivedMsg);
+
       tempPingMillis = millis();
     }
         
@@ -51,21 +54,21 @@ String routeDiscovery(String destinationID)
     if(currentMillis - prevMillis > 6000) 
     {
       prevMillis = currentMillis;
-      Serial.println("Error. Code 408");
-      Serial.println("Request Time Out");
+      Serial.println(F("Error. Code 408"));
+      Serial.println(F("Request Time Out"));
       waitAnswer = false;
       return "404";
     }
 
     // authentication
-    if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destinationID) == true && isCodeRight(receivedMsg, code("rrep")) == true)
+    if(isForMe(receivedMsg) == true && isCodeRight(receivedMsg, code("rrep")) == true)
     {
       waitAnswer = false;
       
       String getPath = parsing(receivedMsg, '|', 5);
-      Serial.print("Get link to ");
+      Serial.print(F("Get link to "));
       Serial.print(destinationID);
-      Serial.print(" via ");
+      Serial.print(F(" via "));
       Serial.println(getPath);
 
       lastDestination = destinationID;
@@ -73,6 +76,7 @@ String routeDiscovery(String destinationID)
 
       return "201";
     }
+
   }
   // ============== End of While ========================
 }

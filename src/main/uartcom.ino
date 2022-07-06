@@ -9,6 +9,13 @@ void uartcom(String serialcommand)
   {
     String command = parsing(serialcommand, '|', 0);
 
+    // AT Command, just to check device is connected
+    if(command == "at")
+    {
+      Serial.println("OK");
+      return;
+    }
+    
     // PING
     if(command == "ping")
     {
@@ -37,8 +44,8 @@ void uartcom(String serialcommand)
 
         Serial.print(F("Cant connect to "));
         Serial.println(nodeTarget);
-        return;
       }
+      return;
     }
     
 
@@ -78,13 +85,6 @@ void uartcom(String serialcommand)
       Serial.println(rtc.now().unixtime(), HEX);
       return;
     }
-
-    // AT Command, just to check device is connected
-    if(command == "at")
-    {
-      Serial.println("OK");
-      return;
-    }
     
     // RREQ --> ex: rreq|YrCGaw
     if(command == "rreq")
@@ -111,6 +111,56 @@ void uartcom(String serialcommand)
       Serial.println(F("Route cache deleted"));
       return;
     }
+
+    if(command == "msgid_his")
+    {
+      for(int i=0; i<10; i++)
+      {
+        Serial.println(msgIDHistory[i]);
+      }
+      return;
+    }
+
+    if(command == "free_memory")
+    {
+      Serial.println(F("Starting state of the memory:"));
+      Serial.println();
+      
+      MEMORY_PRINT_START
+      MEMORY_PRINT_HEAPSTART
+      MEMORY_PRINT_HEAPEND
+      MEMORY_PRINT_STACKSTART
+      MEMORY_PRINT_END
+      MEMORY_PRINT_HEAPSIZE
+
+      Serial.println();
+      Serial.println();
     
+      FREERAM_PRINT;
+
+      byte *p = new byte[3000];    
+      
+      Serial.println();
+      Serial.println();
+      
+      Serial.println(F("Ending state of the memory:"));
+      Serial.println();
+      
+      MEMORY_PRINT_START
+      MEMORY_PRINT_HEAPSTART
+      MEMORY_PRINT_HEAPEND
+      MEMORY_PRINT_STACKSTART
+      MEMORY_PRINT_END
+      MEMORY_PRINT_HEAPSIZE
+      
+      Serial.println();
+      Serial.println();
+      
+      FREERAM_PRINT;
+
+      return;
+    }
+
+    Serial.println(F("Error : Command not found"));    
   }
 }

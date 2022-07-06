@@ -57,3 +57,15 @@ bool isMsgIDRight(String message, String wantedCode)
   return false;  
 }
 
+bool isInMsgIDHistory(String msgID)
+{
+  for(int i=0; i<10; i++)
+  {
+    if(msgIDHistory[i] == msgID)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}

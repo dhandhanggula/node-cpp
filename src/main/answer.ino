@@ -11,7 +11,7 @@ void answer(String message)
 {
   // check if message is null, return to main loop
   if(message == ""){return; }
-  
+
   // check if message header is broken, return to main loop
   if(precheckmsg(message) == false){return; }
 
@@ -27,7 +27,7 @@ void answer(String message)
   String path[] = {""};
 
   // Get routing path
-  int pathLength = charCount(getMsgPath, ',');
+  uint8_t pathLength = charCount(getMsgPath, ',');
 
   if(pathLength == 0)
   {
@@ -66,7 +66,7 @@ void answer(String message)
 
 
   // Check getMsgRecipient
-  if(isForMe(message) == false)
+  if(isForMe(message) == false && isInMsgIDHistory(getMsgID) == false)
   {
     // if rreq
     if(getMsgCode == code("rreq"))
@@ -79,12 +79,26 @@ void answer(String message)
       {
         getMsgPath = nodeID;
       }
+
+      // to prevent incoming message at the same time
+      delay(100);
+
       // relay msg
       String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
-      
+
       LoRa.beginPacket();
       LoRa.print(sentMsg);
       LoRa.endPacket();
+
+      Serial.print(F("Relaying RREQ Message "));
+      Serial.println(getMsgID);
+      Serial.print(F("From : "));
+      Serial.println(message);
+      Serial.print(F("With : "));
+      Serial.println(sentMsg);
+
+      updateMsgHistory(getMsgID);
+
       return;
     }
 
@@ -92,6 +106,7 @@ void answer(String message)
     if(getMsgCode == code("rerr"))
     {
       //do here
+      delay(100);
 
       //relay msg
       String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
@@ -99,6 +114,16 @@ void answer(String message)
       LoRa.beginPacket();
       LoRa.print(sentMsg);
       LoRa.endPacket();
+
+      Serial.print(F("Relaying RERR Message "));
+      Serial.println(getMsgID);
+      Serial.print(F("From : "));
+      Serial.println(message);
+      Serial.print(F("With : "));
+      Serial.println(sentMsg);
+
+      updateMsgHistory(getMsgID);
+
       return;
     }
 
@@ -107,18 +132,30 @@ void answer(String message)
     {
       if(path[i] == nodeID)
       {
+        delay(100);
+        
         // Relay message if this node is in routing path
         String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
         
         LoRa.beginPacket();
         LoRa.print(sentMsg);
         LoRa.endPacket();
+
+        Serial.print(F("Relaying General Message "));
+        Serial.println(getMsgID);
+        Serial.print(F("From : "));
+        Serial.println(message);
+        Serial.print(F("With : "));
+        Serial.println(sentMsg);
+        
+        updateMsgHistory(getMsgID);
+
         return;
       }
     }
   }
 
-  if(isForMe(message) == true)
+  if(isForMe(message) == true && isInMsgIDHistory(getMsgID) == false)
   {
     
     //================================================================
@@ -128,7 +165,6 @@ void answer(String message)
     if(getMsgCode == code("ping"))
     {
       // send answer
-      Serial.print(F("Answer with : "));
 
       String msgCode = code("ansPing");
       String msgID = getMsgID;
@@ -140,7 +176,13 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket();
 
+      Serial.print(F("Answer Ping Message "));
+      Serial.println(getMsgID);
+      Serial.print(F("From : "));
+      Serial.println(message);
+      Serial.print(F("With : "));
       Serial.println(sentMsg);
+
       return;
     }
 
@@ -169,8 +211,15 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket();
 
-      Serial.print("Send RREP : ");
+      Serial.print(F("Answer RREQ Message with RREP "));
+      Serial.println(getMsgID);
+      Serial.print(F("From : "));
+      Serial.println(message);
+      Serial.print(F("With : "));
       Serial.println(sentMsg);
+
+      updateMsgHistory(getMsgID);
+
       return;
     }
 
@@ -179,7 +228,11 @@ void answer(String message)
     //====================================================================
     if(getMsgCode == code("msg"))
     {
+      Serial.println(F("GET Message "));
+      Serial.print(F("Message : "));
       Serial.println(getMsgPayload);
+
+      updateMsgHistory(getMsgID);
 
       return;
     }

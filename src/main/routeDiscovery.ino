@@ -42,10 +42,25 @@ String routeDiscovery(String destinationID)
         receivedMsg += (char)LoRa.read();
       }
 
+      tempPingMillis = millis();
       Serial.print(F("Received : "));
       Serial.println(receivedMsg);
 
-      tempPingMillis = millis();
+      if(isForMe(receivedMsg) == true && isCodeRight(receivedMsg, code("rrep")) == true)
+      {
+        waitAnswer = false;
+        
+        String getPath = parsing(receivedMsg, '|', 5);
+        Serial.print(F("Get link to "));
+        Serial.print(destinationID);
+        Serial.print(F(" via "));
+        Serial.println(getPath);
+
+        lastDestination = destinationID;
+        lastRoute = getPath;
+
+        return "201";
+      }
     }
         
     // End connection if timeout
@@ -60,22 +75,9 @@ String routeDiscovery(String destinationID)
       return "404";
     }
 
+    
     // authentication
-    if(isForMe(receivedMsg) == true && isCodeRight(receivedMsg, code("rrep")) == true)
-    {
-      waitAnswer = false;
-      
-      String getPath = parsing(receivedMsg, '|', 5);
-      Serial.print(F("Get link to "));
-      Serial.print(destinationID);
-      Serial.print(F(" via "));
-      Serial.println(getPath);
-
-      lastDestination = destinationID;
-      lastRoute = getPath;
-
-      return "201";
-    }
+    
 
   }
   // ============== End of While ========================

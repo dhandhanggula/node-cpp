@@ -61,7 +61,7 @@ bool ping(String destinationPing, String routePathPing)
         prevMillis = currentMillis;
         Serial.println(F("Request Time Out"));
         waitAnswer = false;
-        return false;
+        //return false;
       }
 
       // authentication
@@ -71,7 +71,7 @@ bool ping(String destinationPing, String routePathPing)
         Serial.print(F("Connected with time "));
         Serial.print(tempPingMillis - pingMillis);
         Serial.println(F("ms"));
-        return true;
+        //return true;
       }
 
     }

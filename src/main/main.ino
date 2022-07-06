@@ -6,6 +6,9 @@
 //
 // MIT License
 // For more information : https://github.com/dhandhanggula/node-cpp
+//
+// Be Carefull. 
+// HIGHLY RECOMMENDED TO NOT CHANGE THE VOID SETUP AND VOID LOOP
 //====================================================================
 
 
@@ -19,6 +22,7 @@
 
 #include <Wire.h>
 #include "RTClib.h"
+#include <MemoryUsage.h>
 
 //====================================================================
 // LoRa Node Configuration ===========================================
@@ -68,12 +72,13 @@ String messageReceived = "";
 String messageSent = "";
 String payload = "";                    // payload only
 
-unsigned long prevMillis = 0;
-unsigned long pingMillis = 0;
-
+unsigned long prevMillis = 0;           // to save latest millis
+unsigned long pingMillis = 0;           // to save latest ping millis
 
 String lastMsgID = "";
 unsigned long msgMillis = 0;
+
+String msgIDHistory[10] = {"", "", "", "", "", "", "", "", "", ""};
 
 //====================================================================
 // Other(s) ==========================================================
@@ -86,7 +91,6 @@ void setup()
   {
     nodeID += (char)EEPROM.read(i);
   }
-
 
   Serial.begin(115200);
 
@@ -165,4 +169,14 @@ void loop()
     uartcom(serialMsg);
   }
 
+}
+
+void updateMsgHistory(String newID)
+{
+  for(int i=0; i<10; i++)
+  {
+    msgIDHistory[9 - i] = msgIDHistory[9 - (i+1)];
+  }
+
+  msgIDHistory[0] = newID;
 }

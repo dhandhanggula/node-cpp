@@ -3,7 +3,7 @@
 int charCount(String givenString, char Targeted)
 {
   int stringLength = givenString.length();
-  int charCount = 0;
+  uint8_t charCount = 0;
 
   for(int i=0; i<stringLength; i++)
   {

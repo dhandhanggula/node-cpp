@@ -135,6 +135,9 @@ void setup()
   rtc.begin();
   rtc.adjust(DateTime(2022, 1, 1, 0, 0, 0));
 
+  pinMode(A3, INPUT);
+  randomSeed(analogRead(A3));
+
 }
 
 void loop()

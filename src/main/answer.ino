@@ -63,6 +63,8 @@ void answer(String message)
     }
   }
 
+  int randomDelay = random(100, 500);
+
 
 
   // Check getMsgRecipient
@@ -81,7 +83,7 @@ void answer(String message)
       }
 
       // to prevent incoming message at the same time
-      delay(100);
+      delay(randomDelay);
 
       // relay msg
       String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
@@ -106,7 +108,7 @@ void answer(String message)
     if(getMsgCode == code("rerr"))
     {
       //do here
-      delay(100);
+      delay(randomDelay);
 
       //relay msg
       String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;
@@ -132,7 +134,7 @@ void answer(String message)
     {
       if(path[i] == nodeID)
       {
-        delay(100);
+        delay(randomDelay);
         
         // Relay message if this node is in routing path
         String sentMsg = getMsgCode + parser + getMsgID + parser + getMsgSender + parser + getMsgRecipient + parser + getMsgPath + parser + getMsgPayload;

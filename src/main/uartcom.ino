@@ -38,7 +38,7 @@ void uartcom(String serialcommand)
         if(response == "201")
         {
           //ping
-          ping(nodeTarget, lastRoute);
+          Serial.println(F("Please wait a second before send ping message."));
           return;
         }
 
@@ -91,6 +91,12 @@ void uartcom(String serialcommand)
     {
       String nodeTarget = parsing(serialcommand, '|', 1);
       routeDiscovery(nodeTarget);
+      return;
+    }
+
+    if(command == "msg")
+    {
+      meshMsg(parsing(serialcommand, '|', 1), parsing(serialcommand, '|', 2), parsing(serialcommand, '|', 3));
       return;
     }
 

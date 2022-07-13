@@ -17,7 +17,9 @@ String routeDiscovery(String destinationID)
   String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + destinationID + parser + path + parser + "99";
   Serial.println(sentMsg);
   LoRa.print(sentMsg);
-  LoRa.endPacket();
+  LoRa.endPacket(true);
+
+  updateMsgHistory(msgID);
 
   // Wait for the answer
   bool waitAnswer = true;
@@ -45,7 +47,7 @@ String routeDiscovery(String destinationID)
       tempPingMillis = millis();
       Serial.print(F("Received : "));
       Serial.println(receivedMsg);
-
+      
       if(isForMe(receivedMsg) == true && isCodeRight(receivedMsg, code("rrep")) == true)
       {
         waitAnswer = false;

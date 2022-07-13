@@ -4,6 +4,8 @@
 //
 // return 0 if can't connect
 // return 1 if connected
+//
+// PING OK
 //====================================================================
 //====================================================================
 
@@ -23,7 +25,7 @@ bool ping(String destinationPing, String routePathPing)
     LoRa.beginPacket();
     String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + destinationPing + parser + routePathPing + parser + "99";
     LoRa.print(sentMsg);
-    LoRa.endPacket();
+    LoRa.endPacket(true);
 
     lastMsgID = msgID;
     //Serial.println(sentMsg);

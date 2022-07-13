@@ -81,7 +81,6 @@ String lastMsgID = "";
 unsigned long msgMillis = 0;
 
 String msgIDHistory[10] = {"", "", "", "", "", "", "", "", "", ""};
-//String msgToSendBuffer[5] = {"", "", "", "", "", "", "", "", "", ""};
 
 //====================================================================
 // Other(s) ==========================================================
@@ -134,12 +133,10 @@ void setup()
 
   rtc.begin();
   rtc.adjust(DateTime(2022, 1, 1, 0, 0, 0));
-
 }
 
 void loop()
 {
-  
   int packetSize = LoRa.parsePacket();
   messageReceived = "";
 
@@ -151,8 +148,6 @@ void loop()
 
     Serial.println(messageReceived);
   }
-  
-
 
   // Answer if needed
   if (messageReceived != "")
@@ -176,11 +171,7 @@ void loop()
     uartcom(serialMsg);
   }
 
-  // TESTING DISTANCE
-  //uartcom("msg|YrCAkA|YrCAkA|test_distance");
-  //delay(3000);
 }
-
 
 void updateMsgHistory(String newID)
 {

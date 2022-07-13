@@ -88,7 +88,7 @@ void answer(String message)
 
       LoRa.beginPacket();
       LoRa.print(sentMsg);
-      LoRa.endPacket();
+      LoRa.endPacket(true);
 
       Serial.print(F("Relaying RREQ Message "));
       Serial.println(getMsgID);
@@ -113,7 +113,7 @@ void answer(String message)
       
       LoRa.beginPacket();
       LoRa.print(sentMsg);
-      LoRa.endPacket();
+      LoRa.endPacket(true);
 
       Serial.print(F("Relaying RERR Message "));
       Serial.println(getMsgID);
@@ -139,7 +139,7 @@ void answer(String message)
         
         LoRa.beginPacket();
         LoRa.print(sentMsg);
-        LoRa.endPacket();
+        LoRa.endPacket(true);
 
         Serial.print(F("Relaying General Message "));
         Serial.println(getMsgID);
@@ -174,7 +174,7 @@ void answer(String message)
 
       LoRa.beginPacket();
       LoRa.print(sentMsg);
-      LoRa.endPacket();
+      LoRa.endPacket(true);
 
       Serial.print(F("Answer Ping Message "));
       Serial.println(getMsgID);
@@ -209,7 +209,7 @@ void answer(String message)
 
       LoRa.beginPacket();
       LoRa.print(sentMsg);
-      LoRa.endPacket();
+      LoRa.endPacket(true);
 
       Serial.print(F("Answer RREQ Message with RREP "));
       Serial.println(getMsgID);
@@ -228,7 +228,8 @@ void answer(String message)
     //====================================================================
     if(getMsgCode == code("msg"))
     {
-      Serial.println(F("GET Message "));
+      Serial.print(F("GET Message from "));
+      Serial.println(getMsgSender);
       Serial.print(F("Message : "));
       Serial.println(getMsgPayload);
 

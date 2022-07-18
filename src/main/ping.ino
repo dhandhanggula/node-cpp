@@ -61,7 +61,7 @@ bool ping(String destinationPing, String routePathPing)
       if(currentMillis - prevMillis > 6000) 
       {
         prevMillis = currentMillis;
-        Serial.println(F("Request Time Out"));
+        Serial.println(F("Timed Out"));
         waitAnswer = false;
         //return false;
       }
@@ -70,7 +70,7 @@ bool ping(String destinationPing, String routePathPing)
       if(isForMe(receivedMsg) == true && isFromSender(receivedMsg, destinationPing) == true && isCodeRight(receivedMsg, code("ansPing")) == true)
       {
         waitAnswer = false;
-        Serial.print(F("Connected with time "));
+        Serial.print(F("Connected time "));
         Serial.print(tempPingMillis - pingMillis);
         Serial.println(F("ms"));
         //return true;

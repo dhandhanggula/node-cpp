@@ -45,8 +45,8 @@ String routeDiscovery(String destinationID)
       }
 
       tempPingMillis = millis();
-      Serial.print(F("Received : "));
-      Serial.println(receivedMsg);
+      //Serial.print(F("Received : "));
+      //Serial.println(receivedMsg);
       
       if(isForMe(receivedMsg) == true && isCodeRight(receivedMsg, code("rrep")) == true)
       {

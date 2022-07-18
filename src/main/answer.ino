@@ -92,7 +92,7 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket(true);
 
-      Serial.print(F("Relaying RREQ Message "));
+      Serial.print(F("Relaying RREQ "));
       Serial.println(getMsgID);
       Serial.print(F("From : "));
       Serial.println(message);
@@ -117,7 +117,7 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket(true);
 
-      Serial.print(F("Relaying RERR Message "));
+      Serial.print(F("Relaying RERR "));
       Serial.println(getMsgID);
       Serial.print(F("From : "));
       Serial.println(message);
@@ -143,7 +143,7 @@ void answer(String message)
         LoRa.print(sentMsg);
         LoRa.endPacket(true);
 
-        Serial.print(F("Relaying General Message "));
+        Serial.print(F("Relaying Message "));
         Serial.println(getMsgID);
         Serial.print(F("From : "));
         Serial.println(message);
@@ -178,7 +178,7 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket(true);
 
-      Serial.print(F("Answer Ping Message "));
+      Serial.print(F("Answer Ping "));
       Serial.println(getMsgID);
       Serial.print(F("From : "));
       Serial.println(message);
@@ -195,7 +195,8 @@ void answer(String message)
     {
       // Send RREP
       String msgCode = code("rrep");
-      String msgID = getMsgID;
+      DateTime now = rtc.now();
+      String msgID = String(now.unixtime(), HEX); 
       String destination = getMsgSender;
       String path = sendPath;
       String payload;
@@ -213,7 +214,7 @@ void answer(String message)
       LoRa.print(sentMsg);
       LoRa.endPacket(true);
 
-      Serial.print(F("Answer RREQ Message with RREP "));
+      Serial.print(F("Answer RREQ with RREP "));
       Serial.println(getMsgID);
       Serial.print(F("From : "));
       Serial.println(message);

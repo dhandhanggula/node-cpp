@@ -100,6 +100,12 @@ void uartcom(String serialcommand)
       return;
     }
 
+    if(command == "encrypt")
+    {
+      aes_encrypt(toencrypt);
+      return;
+    }
+
     // print route --> ex: print_route
     if(command == "print_route")
     {

@@ -44,7 +44,7 @@ String nodeID = "";                   // to save nodID from EEPROM
 
 #define networkFreq 915E6             // 433E6, 868E6, 915E6
 #define networkSync 0x12              // 0x00 - 0xFF
-#define spreadingFactor 7             // 6 - 12
+#define spreadingFactor 10             // 6 - 12
 #define signalBandwidth 125E3         // 7.8E3, 10.4E3, 15.6E3, 
                                       // 20.8E3, 31.25E3, 41.7E3, 
                                       // 62.5E3, 125E3, 250E3, 500E3
@@ -79,8 +79,6 @@ unsigned long pingMillis = 0;           // to save latest ping millis
 
 String lastMsgID = "";
 unsigned long msgMillis = 0;
-
-String msgIDHistory[10] = {"", "", "", "", "", "", "", "", "", ""};
 
 //====================================================================
 // Other(s) ==========================================================
@@ -145,40 +143,10 @@ void loop()
     while (LoRa.available()) {
       messageReceived += (char)LoRa.read();
     }
-
-    Serial.println(messageReceived);
+    Serial.print(messageReceived);
+    // print RSSI of packet
+    Serial.print("' with RSSI ");
+    Serial.println(LoRa.packetRssi());
   }
 
-  // Answer if needed
-  if (messageReceived != "")
-  {
-    answer(messageReceived);
-  }
-
-  // read serial command
-  String serialMsg = "";
-  if(Serial.available())
-  {
-    delay(10);
-    while(Serial.available() > 0)
-    {
-      serialMsg += (char)Serial.read();
-    }
-    Serial.flush();
-
-    // pass to uartcommand
-    Serial.print(serialMsg);
-    uartcom(serialMsg);
-  }
-
-}
-
-void updateMsgHistory(String newID)
-{
-  for(int i=0; i<10; i++)
-  {
-    msgIDHistory[9 - i] = msgIDHistory[9 - (i+1)];
-  }
-
-  msgIDHistory[0] = newID;
 }

@@ -25,6 +25,7 @@
 #include "RTClib.h"
 
 #include <MemoryUsage.h>
+#include "base64.hpp"
 
 //====================================================================
 // LoRa Node Configuration ===========================================
@@ -71,7 +72,6 @@ RTC_DS1307 rtc;
 
 String parser = "|";
 String messageReceived = "";
-String messageSent = "";
 String payload = "";                    // payload only
 
 unsigned long prevMillis = 0;           // to save latest millis
@@ -80,8 +80,19 @@ unsigned long pingMillis = 0;           // to save latest ping millis
 String lastMsgID = "";
 unsigned long msgMillis = 0;
 
-String msgIDHistory[10] = {"", "", "", "", "", "", "", "", "", ""};
-//String msgToSendBuffer[5] = {"", "", "", "", "", "", "", "", "", ""};
+String msgIDHistory[8] = {"", "", "", "", "", "", "", ""};
+
+//====================================================================
+// Encryption ========================================================
+//====================================================================
+
+byte keys[16] = {0x74, 0x65, 0x73, 0x74, 
+                0x74, 0x65, 0x73, 0x74, 
+                0x74, 0x65, 0x73, 0x74, 
+                0x74, 0x65, 0x73, 0x74};    // to save aes_key in byte
+
+String toencrypt = "1234567890123456";
+byte internalState[16] = {};        // to save state in process
 
 //====================================================================
 // Other(s) ==========================================================
@@ -90,78 +101,51 @@ String msgIDHistory[10] = {"", "", "", "", "", "", "", "", "", ""};
 void setup()
 {
   // Reading the credentials saved in EEPROM
-  for(int i=0; i<6; i++)
-  {
+  for(int i=0; i<6; i++){
     nodeID += (char)EEPROM.read(i);
   }
 
   Serial.begin(115200);
 
   // Activate LoRa
-  Serial.println(F("========================================"));
+  Serial.println(F("========================="));
   Serial.print(F("Node with ID "));
   Serial.print(nodeID);
   Serial.println(F(" is active"));
-  Serial.println(F("========================================"));
+  Serial.println(F("========================="));
 
-  if (!LoRa.begin(networkFreq)) {
-    Serial.println(F("Starting LoRa failed!"));
-    while (1);
-  }
-
-  Serial.print(F("Frequency : "));
+  LoRa.begin(networkFreq);
+  Serial.print(F("FREQ : "));
   Serial.println(networkFreq);
 
   LoRa.setTxPower(txPower);
-  Serial.print(F("Transmitter power (dB) : "));
+  Serial.print(F("TX (dB) : "));
   Serial.println(txPower);
 
   LoRa.setSpreadingFactor(spreadingFactor);
-  Serial.print(F("Spreading Factor : "));
+  Serial.print(F("SF : "));
   Serial.println(spreadingFactor);
 
   LoRa.setSignalBandwidth(signalBandwidth);
-  Serial.print(F("Signal Bandwidth : "));
+  Serial.print(F("Band : "));
   Serial.println(signalBandwidth);
 
   LoRa.setSyncWord(networkSync);
-  Serial.print(F("Network Sync Word : "));
+  Serial.print(F("Sync : "));
   Serial.println(networkSync, HEX);
 
-  Serial.println(F("Node is activated successfully ========="));
-  Serial.println(F("========================================"));
-  Serial.println("\n");
+  Serial.println(F(""));
 
   rtc.begin();
-  rtc.adjust(DateTime(2022, 1, 1, 0, 0, 0));
+  //rtc.adjust(DateTime(2022, 1, 1, 0, 0, 0));
 
   pinMode(A3, INPUT);
   randomSeed(analogRead(A3));
-
 }
 
 void loop()
 {
-  
-  int packetSize = LoRa.parsePacket();
   messageReceived = "";
-
-  // Read received packet
-  if (packetSize) {;
-    while (LoRa.available()) {
-      messageReceived += (char)LoRa.read();
-    }
-
-    Serial.println(messageReceived);
-  }
-  
-
-
-  // Answer if needed
-  if (messageReceived != "")
-  {
-    answer(messageReceived);
-  }
 
   // read serial command
   String serialMsg = "";
@@ -179,18 +163,30 @@ void loop()
     uartcom(serialMsg);
   }
 
+  onReceive(LoRa.parsePacket());
+
   // TESTING DISTANCE
-  //uartcom("msg|YrCAkA|YrCAkA|test_distance");
+  //uartcom("msg|YrZJNA|YrZJNA|test_distance");
   //delay(3000);
 }
 
 
 void updateMsgHistory(String newID)
 {
-  for(int i=0; i<10; i++)
-  {
-    msgIDHistory[9 - i] = msgIDHistory[9 - (i+1)];
+  for(int i=0; i<8; i++){
+    msgIDHistory[7 - i] = msgIDHistory[7 - (i+1)];
   }
-
   msgIDHistory[0] = newID;
+}
+
+
+void onReceive(int packetSize)
+{
+  if (packetSize == 0) return;          // if there's no packet, return
+  while (LoRa.available()) {
+    messageReceived += (char)LoRa.read();
+  }
+  answer(messageReceived);
+
+  //Serial.println(messageReceived);
 }

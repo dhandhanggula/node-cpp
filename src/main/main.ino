@@ -86,6 +86,9 @@ String msgIDHistory[8] = {"", "", "", "", "", "", "", ""};
 // Encryption ========================================================
 //====================================================================
 
+// https://www.binaryhexconverter.com/ascii-text-to-hex-converter 
+// for converting your String to hex
+
 byte keys[16] = {0x74, 0x65, 0x73, 0x74, 
                 0x74, 0x65, 0x73, 0x74, 
                 0x74, 0x65, 0x73, 0x74, 

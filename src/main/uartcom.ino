@@ -102,7 +102,10 @@ void uartcom(String serialcommand)
 
     if(command == "encrypt")
     {
-      aes_encrypt(toencrypt);
+
+      String inputMessage = parsing(serialcommand, '|', 1);
+      encryptAES(inputMessage);
+      
       return;
     }
 

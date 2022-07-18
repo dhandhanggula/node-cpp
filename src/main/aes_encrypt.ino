@@ -229,8 +229,6 @@ String aes_encrypt(String plaintext)
   chipertext = chipertext + (char)chipertext_char[14];
   chipertext = chipertext + (char)chipertext_char[15];
 
-  Serial.println(chipertext);
-
   return chipertext;
 }
 
@@ -535,4 +533,45 @@ byte sbox(byte stateHex)
   if(stateHex == 0xfd){return 0x54;}
   if(stateHex == 0xfe){return 0xbb;}
   if(stateHex == 0xff){return 0x16;}
+}
+
+String encryptAES(String inputPlaintext)
+{
+  String chipertext_encrypt = "";
+  int plaintextLength = inputPlaintext.length();
+
+  if(plaintextLength < 16)
+  {
+    for(int i=0; i<16-plaintextLength; i++){
+      inputPlaintext += "=";
+    }
+  }
+
+  if(plaintextLength > 16)
+  {
+    int plaintextMod = plaintextLength % 16;
+    if(plaintextMod != 0)
+    {
+      for(int i=0; i<16-plaintextMod; i++){
+        inputPlaintext += "=";
+      }
+    }
+  }
+
+  //parse for 16 byte
+  plaintextLength = inputPlaintext.length();
+  int aesDivide = plaintextLength / 16;
+
+  for(int y=0; y<aesDivide; y++)
+  {
+    String tempString = "";
+    for(int z=0; z<16; z++)
+    {
+      tempString += inputPlaintext[y*16 + z];
+    }
+    chipertext_encrypt += aes_encrypt(tempString);
+  }
+
+  Serial.println(chipertext_encrypt);
+  return chipertext_encrypt;
 }

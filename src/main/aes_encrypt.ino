@@ -141,6 +141,15 @@ String aes_encrypt(String plaintext)
     }
 
     // ADDROUNDKEY
+    for(int i=0; i<4; i++)
+    {
+    internalState[(i*4) + 0] = internalState[(i*4) + 0] ^ w[round*4 + i][0];
+    internalState[(i*4) + 1] = internalState[(i*4) + 1] ^ w[round*4 + i][1];
+    internalState[(i*4) + 2] = internalState[(i*4) + 2] ^ w[round*4 + i][2];
+    internalState[(i*4) + 3] = internalState[(i*4) + 3] ^ w[round*4 + i][3];
+    }
+
+/*
     internalState[0] = internalState[0] ^ w[round*4 + 0][0];
     internalState[1] = internalState[1] ^ w[round*4 + 0][1];
     internalState[2] = internalState[2] ^ w[round*4 + 0][2];
@@ -160,6 +169,7 @@ String aes_encrypt(String plaintext)
     internalState[13] = internalState[13] ^ w[round*4 + 3][1];
     internalState[14] = internalState[14] ^ w[round*4 + 3][2];
     internalState[15] = internalState[15] ^ w[round*4 + 3][3];
+    */
   }
   
   // 10th round
@@ -172,6 +182,7 @@ String aes_encrypt(String plaintext)
   for(int i=0; i<16; i++){
     tempState[i] = internalState[i];
   }
+
   internalState[0] = tempState[0];
   internalState[1] = tempState[5];
   internalState[2] = tempState[10];
@@ -191,6 +202,15 @@ String aes_encrypt(String plaintext)
 
 
   // ADDROUNDKEY
+  for(int i=0; i<4; i++)
+  {
+  internalState[(i*4) + 0] = internalState[(i*4) + 0] ^ w[40 + i][0];
+  internalState[(i*4) + 1] = internalState[(i*4) + 1] ^ w[40 + i][1];
+  internalState[(i*4) + 2] = internalState[(i*4) + 2] ^ w[40 + i][2];
+  internalState[(i*4) + 3] = internalState[(i*4) + 3] ^ w[40 + i][3];
+  }
+  
+  /*
   internalState[0] = internalState[0] ^ w[40][0];
   internalState[1] = internalState[1] ^ w[40][1];
   internalState[2] = internalState[2] ^ w[40][2];
@@ -210,8 +230,18 @@ String aes_encrypt(String plaintext)
   internalState[13] = internalState[13] ^ w[43][1];
   internalState[14] = internalState[14] ^ w[43][2];
   internalState[15] = internalState[15] ^ w[43][3];
+  */
 
   encode_base64(internalState, 16, chipertext_char);
+
+
+  for(int i=0; i<16; i++)
+  {
+    chipertext += (char)chipertext_char[i];
+  }
+
+/*
+  
   chipertext = chipertext + (char)chipertext_char[0];
   chipertext = chipertext + (char)chipertext_char[1];
   chipertext = chipertext + (char)chipertext_char[2];
@@ -228,6 +258,7 @@ String aes_encrypt(String plaintext)
   chipertext = chipertext + (char)chipertext_char[13];
   chipertext = chipertext + (char)chipertext_char[14];
   chipertext = chipertext + (char)chipertext_char[15];
+*/
 
   return chipertext;
 }
@@ -565,6 +596,7 @@ String encryptAES(String inputPlaintext)
   for(int y=0; y<aesDivide; y++)
   {
     String tempString = "";
+
     for(int z=0; z<16; z++)
     {
       tempString += inputPlaintext[y*16 + z];

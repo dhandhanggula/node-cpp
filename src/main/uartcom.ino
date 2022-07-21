@@ -100,14 +100,16 @@ void uartcom(String serialcommand)
       return;
     }
 
+
     if(command == "encrypt")
     {
 
       String inputMessage = parsing(serialcommand, '|', 1);
       encryptAES(inputMessage);
-      
+
       return;
     }
+  
 
     // print route --> ex: print_route
     if(command == "print_route")

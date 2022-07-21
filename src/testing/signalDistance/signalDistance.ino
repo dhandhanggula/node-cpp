@@ -44,7 +44,7 @@ String nodeID = "";                   // to save nodID from EEPROM
 
 #define networkFreq 915E6             // 433E6, 868E6, 915E6
 #define networkSync 0x12              // 0x00 - 0xFF
-#define spreadingFactor 10             // 6 - 12
+#define spreadingFactor 7             // 6 - 12
 #define signalBandwidth 125E3         // 7.8E3, 10.4E3, 15.6E3, 
                                       // 20.8E3, 31.25E3, 41.7E3, 
                                       // 62.5E3, 125E3, 250E3, 500E3

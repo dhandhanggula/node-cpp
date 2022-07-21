@@ -87,14 +87,13 @@ String msgIDHistory[8] = {"", "", "", "", "", "", "", ""};
 //====================================================================
 
 // https://www.binaryhexconverter.com/ascii-text-to-hex-converter 
-// for converting your String to hex
+// for converting your String to hex (used here : testtesttesttest)
 
 byte keys[16] = {0x74, 0x65, 0x73, 0x74, 
                 0x74, 0x65, 0x73, 0x74, 
                 0x74, 0x65, 0x73, 0x74, 
                 0x74, 0x65, 0x73, 0x74};    // to save aes_key in byte
 
-String toencrypt = "1234567890123456";
 byte internalState[16] = {};        // to save state in process
 
 //====================================================================
@@ -140,7 +139,7 @@ void setup()
   Serial.println(F(""));
 
   rtc.begin();
-  //rtc.adjust(DateTime(2022, 1, 1, 0, 0, 0));
+  rtc.adjust(DateTime(2022, 1, 1, 0, 0, 0));
 
   pinMode(A3, INPUT);
   randomSeed(analogRead(A3));

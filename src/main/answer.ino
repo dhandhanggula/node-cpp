@@ -197,6 +197,7 @@ void answer(String message)
       String msgCode = code("rrep");
       DateTime now = rtc.now();
       String msgID = String(now.unixtime(), HEX); 
+      //String msgID = getMsgID;
       String destination = getMsgSender;
       String path = sendPath;
       String payload;

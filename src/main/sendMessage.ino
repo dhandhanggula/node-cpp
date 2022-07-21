@@ -20,6 +20,8 @@ int meshMsg(String msgDestination, String msgRoute, String msgPayload)
   DateTime now = rtc.now();
   String msgID = String(now.unixtime(), HEX); 
 
+  msgPayload = encryptAES(msgPayload);
+
   LoRa.beginPacket();
   String sentMsg = msgCode + parser + msgID + parser + nodeID + parser + msgDestination + parser + msgRoute + parser + msgPayload;
   LoRa.print(sentMsg);

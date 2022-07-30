@@ -1,37 +1,41 @@
 String aes_encrypt(String plaintext)
-{ 
-  
-  byte inputState[16] = {};               // to save plaintext in byte
-  byte tempState[16] = {};                // temporary state
+{
+  byte w[44][4] = {{}};               // to save expansion key w calculation
 
-  unsigned char chipertext_char[24] = {}; // save base64
-  String chipertext;                      // chipertext in string
+  byte tempState[16] = {};
 
-  // Convert plaintext and aes_key in byte
-  for(int i=0; i<16; i++)
+  unsigned char chipertext_char[22] = {};
+  String chipertext;
+
+  // save to w[][]
+  for(int x=0; x<44; x++)
   {
-    inputState[i] = (int)plaintext[i];
+    w[x][0] = (int)EEPROM.read(23 + (x*4) + 0);
+    w[x][1] = (int)EEPROM.read(23 + (x*4) + 1);
+    w[x][2] = (int)EEPROM.read(23 + (x*4) + 2);
+    w[x][3] = (int)EEPROM.read(23 + (x*4) + 3);
   }
 
   // Encrypt here
   // First round
   for(int i=0; i<16; i++){
-    internalState[i] = inputState[i] ^ (int)EEPROM.read(7+i);
+    internalState[i] = (int)plaintext[i] ^ ((int)EEPROM.read(7+i));
   }
   
   // 2nd until 9th round
   for(int round = 1; round<10; round++)
   {
+
     // SUBBYTES
     for(int i=0; i<16; i++){
-      internalState[i] = s[internalState[i]];
+      internalState[i] = sbox(internalState[i]);
     }
+
 
     // SHIFTROWS
     for(int i=0; i<16; i++){
       tempState[i] = internalState[i];
     }
-
     internalState[0] = tempState[0];
     internalState[1] = tempState[5];
     internalState[2] = tempState[10];
@@ -49,6 +53,8 @@ String aes_encrypt(String plaintext)
     internalState[14] = tempState[6];
     internalState[15] = tempState[11];
 
+
+
     // MIXCOLUMNS
     for(int i=0; i<16; i++){
       tempState[i] = internalState[i];
@@ -56,28 +62,26 @@ String aes_encrypt(String plaintext)
 
     for(int i=0; i<4; i++)
     {
-      internalState[i*4 + 0] = gmul(tempState[i*4], 2) ^ gmul(tempState[i*4+1], 3) ^ tempState[i*4+2] ^ tempState[i*4+3];
-      internalState[i*4 + 1] = tempState[i*4] ^ gmul(tempState[i*4+1], 2) ^ gmul(tempState[i*4+2], 3) ^ tempState[i*4+3];
-      internalState[i*4 + 2] = tempState[i*4] ^ tempState[i*4+1] ^ gmul(tempState[i*4+2], 2) ^ gmul(tempState[i*4+3], 3);
-      internalState[i*4 + 3] = gmul(tempState[i*4], 3) ^ tempState[i*4+1] ^ tempState[i*4+2] ^ gmul(tempState[i*4+3], 2);
+      internalState[i*4 + 0] = gauss(0x02, tempState[i*4]) ^ gauss(0x03, tempState[i*4+1]) ^ tempState[i*4+2] ^ tempState[i*4+3];
+      internalState[i*4 + 1] = tempState[i*4] ^ gauss(0x02, tempState[i*4+1]) ^ gauss(0x03, tempState[i*4+2]) ^ tempState[i*4+3];
+      internalState[i*4 + 2] = tempState[i*4] ^ tempState[i*4+1] ^ gauss(0x02, tempState[i*4+2]) ^ gauss(0x03, tempState[i*4+3]);
+      internalState[i*4 + 3] = gauss(0x03, tempState[i*4]) ^ tempState[i*4+1] ^ tempState[i*4+2] ^ gauss(0x02, tempState[i*4+3]);
     }
 
     // ADDROUNDKEY
     for(int i=0; i<4; i++)
     {
-      // Start fom EEPROM 23
-      internalState[(i*4) + 0] = internalState[(i*4) + 0] ^ (int)EEPROM.read(round*16 + (i*4) + 23 + 0);
-      internalState[(i*4) + 1] = internalState[(i*4) + 1] ^ (int)EEPROM.read(round*16 + (i*4) + 23 + 1);
-      internalState[(i*4) + 2] = internalState[(i*4) + 2] ^ (int)EEPROM.read(round*16 + (i*4) + 23 + 2);
-      internalState[(i*4) + 3] = internalState[(i*4) + 3] ^ (int)EEPROM.read(round*16 + (i*4) + 23 + 3);
+    internalState[(i*4) + 0] = internalState[(i*4) + 0] ^ w[round*4 + i][0];
+    internalState[(i*4) + 1] = internalState[(i*4) + 1] ^ w[round*4 + i][1];
+    internalState[(i*4) + 2] = internalState[(i*4) + 2] ^ w[round*4 + i][2];
+    internalState[(i*4) + 3] = internalState[(i*4) + 3] ^ w[round*4 + i][3];
     }
-
   }
   
   // 10th round
   // SUBBYTES
   for(int i=0; i<16; i++){
-    internalState[i] = s[internalState[i]];
+    internalState[i] = sbox(internalState[i]);
   }
 
   // SHIFTROWS
@@ -104,22 +108,19 @@ String aes_encrypt(String plaintext)
 
 
   // ADDROUNDKEY
-  // EEPROM start from 183
   for(int i=0; i<4; i++)
   {
-  internalState[(i*4) + 0] = internalState[(i*4) + 0] ^ (int)EEPROM.read(183 + (i*4));
-  internalState[(i*4) + 1] = internalState[(i*4) + 1] ^ (int)EEPROM.read(184 + (i*4));
-  internalState[(i*4) + 2] = internalState[(i*4) + 2] ^ (int)EEPROM.read(185 + (i*4));
-  internalState[(i*4) + 3] = internalState[(i*4) + 3] ^ (int)EEPROM.read(186 + (i*4));
+  internalState[(i*4) + 0] = internalState[(i*4) + 0] ^ w[40 + i][0];
+  internalState[(i*4) + 1] = internalState[(i*4) + 1] ^ w[40 + i][1];
+  internalState[(i*4) + 2] = internalState[(i*4) + 2] ^ w[40 + i][2];
+  internalState[(i*4) + 3] = internalState[(i*4) + 3] ^ w[40 + i][3];
   }
+  
+  encode_base64(internalState, 22, chipertext_char);
 
 
-  encode_base64(internalState, 16, chipertext_char);
-
-
-  for(int i=0; i<24; i++)
+  for(int i=0; i<22; i++)
   {
-    //Serial.println(internalState[i], HEX);
     chipertext += (char)chipertext_char[i];
   }
 
@@ -128,30 +129,6 @@ String aes_encrypt(String plaintext)
 
 
 ///////////////////////////////////////////////////////////////////////////
-
-byte gmul(byte a, int b){
-    byte tmp = (a << 1) & 0xff;
-
-    if (b == 2){
-      if(a<128)
-      {
-        return tmp;
-      }
-      else{
-        return tmp ^ 0x1b;
-      }
-    }
-
-    if (b == 3){
-      if(a<128)
-      {
-        return tmp ^ a;
-      }
-      else{
-        return tmp ^ 0x1b ^a;
-      }
-    }
-}
 
 
 String encryptAES(String inputPlaintext)
